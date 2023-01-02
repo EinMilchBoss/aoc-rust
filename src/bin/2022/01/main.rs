@@ -4,21 +4,18 @@ const YEAR: Year = Year("2022");
 const DAY: Day = Day("01");
 
 fn solve(input: &str) -> Vec<i32> {
-    input.split("\n\n")
-        .map(|elf: &str| 
+    input
+        .split("\n\n")
+        .map(|elf: &str| {
             elf.lines()
                 .map(|line| line.parse::<i32>().unwrap())
                 .sum::<i32>()
-        )
+        })
         .collect()
 }
 
 fn solve_first(input: &str) -> String {
-    solve(input)
-        .iter()
-        .max()
-        .unwrap()
-        .to_string()
+    solve(input).iter().max().unwrap().to_string()
 }
 
 fn solve_second(input: &str) -> String {
@@ -32,8 +29,16 @@ fn main() {
     let input = read_file(InputFile::Actual, YEAR, DAY);
 
     if let Some(example) = example {
-        println!("First: Expected {} found {}.", 24_000, solve_first(&example));
-        println!("Second: Expected {} found {}.", 45_000, solve_second(&example));
+        println!(
+            "First: Expected {} found {}.",
+            24_000,
+            solve_first(&example)
+        );
+        println!(
+            "Second: Expected {} found {}.",
+            45_000,
+            solve_second(&example)
+        );
     }
 
     if let Some(input) = input {

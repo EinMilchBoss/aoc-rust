@@ -9,7 +9,7 @@ pub enum Outcome {
 
 impl FromStr for Outcome {
     type Err = String;
-    
+
     fn from_str(outcome: &str) -> Result<Self, <Self as FromStr>::Err> {
         match outcome {
             "X" => Ok(Self::Lose),

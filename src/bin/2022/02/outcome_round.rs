@@ -38,12 +38,12 @@ impl OutcomeRound {
                 player_value = opponent_value + 1;
                 cycle(1..=3, &mut player_value);
                 FromPrimitive::from_u8(player_value).unwrap()
-            },
+            }
             Outcome::Lose => {
                 player_value = opponent_value - 1;
                 cycle(1..=3, &mut player_value);
                 FromPrimitive::from_u8(player_value).unwrap()
-            },
+            }
             Outcome::Draw => self.opponent,
         }
     }

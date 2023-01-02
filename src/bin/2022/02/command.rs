@@ -1,4 +1,4 @@
-use std::{str::FromStr, cmp::Ordering};
+use std::{cmp::Ordering, str::FromStr};
 
 use num_derive::FromPrimitive;
 
@@ -11,7 +11,7 @@ pub enum Command {
 
 impl FromStr for Command {
     type Err = String;
-    
+
     fn from_str(command: &str) -> Result<Self, <Self as FromStr>::Err> {
         match command {
             "A" | "X" => Ok(Self::Rock),
@@ -23,9 +23,9 @@ impl FromStr for Command {
 }
 
 impl PartialOrd for Command {
-    fn partial_cmp(&self, other: &Command) -> Option<Ordering> { 
+    fn partial_cmp(&self, other: &Command) -> Option<Ordering> {
         let difference = *self as i8 - *other as i8;
-        
+
         if let -1 | 2 = difference {
             Some(Ordering::Less)
         } else if let 1 | -2 = difference {

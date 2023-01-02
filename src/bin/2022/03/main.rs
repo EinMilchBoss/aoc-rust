@@ -1,84 +1,59 @@
-use std::{collections::{HashSet, HashMap}, hash::Hash, path::Iter};
+use std::collections::HashSet;
 
 use util::std::*;
 
 const YEAR: Year = Year("2022");
 const DAY: Day = Day("03");
 
+fn split_in_half(string: &str) -> (&str, &str) {
+    let half = string.len() / 2;
+    (&string[..half], &string[half..])
+}
+
+fn unique_chars(string: &str) -> HashSet<char> {
+    string.chars().collect()
+}
+
+fn priority(char: &char) -> u32 {
+    match char {
+        'a'..='z' => *char as u32 - 'a' as u32 + 1,
+        'A'..='Z' => *char as u32 - 'A' as u32 + 27,
+        _ => panic!("Char {char} couldn't be parsed to priority"),
+    }
+}
+
 fn solve_first(input: &str) -> String {
-    // split to half
-    // get unique char from first
-    // check for every unique char of first if also in second
-    //   true: add to vec of char
-    // map chars to int and sum
-    let compartments: Vec<_> = input.lines()
-        .map(|line| {
-            let half = line.len() / 2;
-            (&line[..half], &line[half..])
-        })
-        .collect();
+    let compartments: Vec<_> = input.lines().map(split_in_half).collect();
 
     let unique_compartments: Vec<_> = compartments
         .iter()
-        .map(|(first, second)| {
-            let first: HashSet<_> = first.chars().collect();
-            let second: HashSet<_> = second.chars().collect();
-            (first, second)
-        })
+        .map(|(first, second)| (unique_chars(first), unique_chars(second)))
         .collect();
 
     let duplicates: Vec<_> = unique_compartments
         .iter()
-        .map(|(first, second)| first.intersection(second).next().unwrap())
+        .map(|(first, second)| *first.intersection(second).next().unwrap())
         .collect();
 
-    let priority: Vec<_> = duplicates
-        .iter()
-        .map(|char| match char {
-            'a'..='z' => **char as u32 - 'a' as u32 + 1,
-            'A'..='Z' => **char as u32 - 'A' as u32 + 27,
-            _ => panic!("Char {char} couldn't be parsed to priority"),
-        })
-        .collect();
-
-        /*
-    dbg!(&compartments);
-
-
-    dbg!(&unique_compartments);
-
-    dbg!(&duplicates);
-
-    dbg!(&priority);
-     */
-
+    let priority: Vec<_> = duplicates.iter().map(priority).collect();
 
     priority.iter().sum::<u32>().to_string()
 }
 
 fn solve_second(input: &str) -> String {
-// split to half
-    // get unique char from first
-    // check for every unique char of first if also in second
-    //   true: add to vec of char
-    // map chars to int and sum
-    let line_chars: Vec<_> = input
-        .lines()
-        .map(|line| line.chars().collect::<Vec<_>>())
-        .collect();
+    let lines: Vec<_> = input.lines().collect::<Vec<_>>();
 
-    let groups: Vec<_> = line_chars
-        .chunks(3)
-        .collect();
+    let groups: Vec<_> = lines.chunks(3).collect();
 
     let unique_groups: Vec<_> = groups
         .iter()
         .map(|chunk| {
             if let [first, second, third] = chunk {
-                let first: HashSet<_> = HashSet::from_iter(first);
-                let second: HashSet<_> = HashSet::from_iter(second);
-                let third: HashSet<_> = HashSet::from_iter(third);
-                (first, second, third)
+                (
+                    unique_chars(first),
+                    unique_chars(second),
+                    unique_chars(third),
+                )
             } else {
                 panic!("Chunk could not be split into 3 elements.");
             }
@@ -94,25 +69,7 @@ fn solve_second(input: &str) -> String {
         })
         .collect();
 
-    let priority: Vec<_> = duplicates
-        .iter()
-        .map(|char| match char {
-            'a'..='z' => **char as u32 - 'a' as u32 + 1,
-            'A'..='Z' => **char as u32 - 'A' as u32 + 27,
-            _ => panic!("Char {char} couldn't be parsed to priority"),
-        })
-        .collect();
-
-    /*dbg!(&groups);
-
-
-    dbg!(&unique_groups);
-
-    dbg!(&duplicates);
-
-    dbg!(&priority);
-    */
-
+    let priority: Vec<_> = duplicates.iter().map(priority).collect();
 
     priority.iter().sum::<u32>().to_string()
 }

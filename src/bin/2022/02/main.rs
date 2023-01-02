@@ -1,15 +1,15 @@
 use std::str::FromStr;
 
-use outcome::Outcome;
 use command::Command;
-use outcome_round::OutcomeRound;
 use command_round::CommandRound;
+use outcome::Outcome;
+use outcome_round::OutcomeRound;
 use util::std::*;
 
-mod outcome;
 mod command;
-mod outcome_round;
 mod command_round;
+mod outcome;
+mod outcome_round;
 
 const YEAR: Year = Year("2022");
 const DAY: Day = Day("02");
@@ -21,7 +21,7 @@ fn solve_first(input: &str) -> String {
             let mut iter = line
                 .split(' ')
                 .map(|command| Command::from_str(command).unwrap());
-            
+
             let opponent = iter.next();
             let player = iter.next();
             if opponent.is_none() || player.is_none() {
@@ -39,8 +39,7 @@ fn solve_second(input: &str) -> String {
     input
         .lines()
         .map(|line| {
-            let mut iter = line
-                .split(' ');
+            let mut iter = line.split(' ');
 
             let opponent = Command::from_str(iter.next().unwrap());
             let outcome = Outcome::from_str(iter.next().unwrap());
