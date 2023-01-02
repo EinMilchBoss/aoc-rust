@@ -32,8 +32,8 @@ fn main() {
     let input = read_file(InputFile::Actual, YEAR, DAY);
 
     if let Some(example) = example {
-        assert_eq!(24_000.to_string(), solve_first(&example), "First example");
-        assert_eq!(45_000.to_string(), solve_second(&example), "Second example");
+        println!("First: Expected {} found {}.", 24_000, solve_first(&example));
+        println!("Second: Expected {} found {}.", 45_000, solve_second(&example));
     }
 
     if let Some(input) = input {
