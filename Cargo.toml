@@ -6,19 +6,19 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
-name = "202201_aoc"
+name = "2201_aoc"
 path = "./src/bin/2022/01/main.rs"
 
 [[bin]]
-name = "202202_aoc"
+name = "2202_aoc"
 path = "./src/bin/2022/02/main.rs"
 
 [[bin]]
-name = "202203_aoc"
+name = "2203_aoc"
 path = "./src/bin/2022/03/main.rs"
 
 [[bin]]
-name = "202204_aoc"
+name = "2204_aoc"
 path = "./src/bin/2022/04/main.rs"
 
 [lib]
