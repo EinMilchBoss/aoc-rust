@@ -35,13 +35,13 @@ fn solve_first(input: &str) -> String {
         .map(|(first, second)| *first.intersection(second).next().unwrap())
         .collect();
 
-    let priority: Vec<_> = duplicates.iter().map(priority).collect();
+    let priorities: Vec<_> = duplicates.iter().map(priority).collect();
 
-    priority.iter().sum::<u32>().to_string()
+    priorities.iter().sum::<u32>().to_string()
 }
 
 fn solve_second(input: &str) -> String {
-    let lines: Vec<_> = input.lines().collect::<Vec<_>>();
+    let lines: Vec<_> = input.lines().collect();
 
     let groups: Vec<_> = lines.chunks(3).collect();
 
@@ -69,9 +69,9 @@ fn solve_second(input: &str) -> String {
         })
         .collect();
 
-    let priority: Vec<_> = duplicates.iter().map(priority).collect();
+    let priorities: Vec<_> = duplicates.iter().map(priority).collect();
 
-    priority.iter().sum::<u32>().to_string()
+    priorities.iter().sum::<u32>().to_string()
 }
 
 fn main() {
