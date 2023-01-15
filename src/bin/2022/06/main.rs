@@ -5,7 +5,7 @@ use util::std::*;
 const YEAR: Year = Year("2022");
 const DAY: Day = Day("06");
 
-fn all_unique(elements: &Vec<char>) -> bool {
+fn is_unique(elements: &Vec<char>) -> bool {
     let unique = HashSet::<char>::from_iter(elements.clone());
     elements.len() == unique.len()
 }
@@ -16,7 +16,7 @@ fn solve(input: &str, window_size: usize) -> String {
         .windows(window_size)
         .filter(|window| {
             let values = window.iter().map(|(_, value)| *value).collect::<Vec<_>>();
-            all_unique(&values)
+            is_unique(&values)
         })
         .next()
         .unwrap();
