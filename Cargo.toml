@@ -21,6 +21,10 @@ path = "./src/bin/2022/03/main.rs"
 name = "2204_aoc"
 path = "./src/bin/2022/04/main.rs"
 
+[[bin]]
+name = "2205_aoc"
+path = "./src/bin/2022/05/main.rs"
+
 [lib]
 name = "util"
 path = "./src/lib/lib.rs"
