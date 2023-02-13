@@ -1,9 +1,10 @@
-use std::ops;
+use std::ops::{AddAssign, Sub};
 
 use crate::direction::Direction;
 
 #[derive(Hash, Eq, PartialEq, Copy, Clone, Debug)]
 pub struct Point(pub i16, pub i16);
+
 #[derive(Copy, Clone, Debug)]
 pub struct Vector(pub i16, pub i16);
 
@@ -26,15 +27,14 @@ impl Vector {
     }
 }
 
-impl ops::Add<Vector> for Point {
-    type Output = Point;
-
-    fn add(self, rhs: Vector) -> Self::Output {
-        Point(self.0 + rhs.0, self.1 + rhs.1)
+impl AddAssign<Vector> for Point {
+    fn add_assign(&mut self, rhs: Vector) {
+        self.0 += rhs.0;
+        self.1 += rhs.1;
     }
 }
 
-impl ops::Sub<Point> for Point {
+impl Sub<Point> for Point {
     type Output = Vector;
 
     fn sub(self, rhs: Point) -> Self::Output {

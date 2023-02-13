@@ -7,12 +7,6 @@ pub struct Motion {
     pub count: u8,
 }
 
-impl Motion {
-    pub fn new(dir: Direction, count: u8) -> Self {
-        Motion { dir, count }
-    }
-}
-
 impl FromStr for Motion {
     type Err = ();
 
@@ -20,7 +14,7 @@ impl FromStr for Motion {
         if let [dir, count] = string.split(' ').collect::<Vec<_>>().as_slice() {
             let dir = Direction::from_str(dir).unwrap();
             let count = count.parse().unwrap();
-            Ok(Motion::new(dir, count))
+            Ok(Motion { dir, count })
         } else {
             Err(())
         }

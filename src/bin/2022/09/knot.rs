@@ -10,16 +10,15 @@ impl Knot {
         Knot { pos: Point(0, 0) }
     }
 
-    pub fn shift(&mut self, shift: &Vector) {
-        self.pos.0 += shift.0;
-        self.pos.1 += shift.1;
+    pub fn shift(&mut self, shift: Vector) {
+        self.pos += shift;
     }
 
     pub fn follow(&mut self, other: &Knot) {
         let dif = other.pos - self.pos;
         if !Self::is_adjacent(&dif) {
             let approximation = dif.approximation();
-            self.pos = self.pos + approximation;
+            self.pos += approximation;
         }
     }
 

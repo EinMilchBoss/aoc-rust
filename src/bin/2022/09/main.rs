@@ -20,7 +20,7 @@ fn solve_first(input: &str) -> String {
     for Motion { dir, count } in input.lines().map(|line| Motion::from_str(line).unwrap()) {
         let step = Vector::from_dir(dir);
         for _ in 0..count {
-            head.shift(&step);
+            head.shift(step);
             tail.follow(&head);
             tail_pos.insert(tail.pos);
         }
@@ -37,7 +37,7 @@ fn solve_second(input: &str) -> String {
     for Motion { dir, count } in input.lines().map(|line| Motion::from_str(line).unwrap()) {
         let step = Vector::from_dir(dir);
         for _ in 0..count {
-            head.shift(&step);
+            head.shift(step);
             tails[0].follow(&head);
             for indices in tail_indices.windows(2) {
                 if let &[previous, current] = indices {
