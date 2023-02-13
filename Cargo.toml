@@ -29,6 +29,18 @@ path = "./src/bin/2022/05/main.rs"
 name = "2206_aoc"
 path = "./src/bin/2022/06/main.rs"
 
+[[bin]]
+name = "2207_aoc"
+path = "./src/bin/2022/07/main.rs"
+
+[[bin]]
+name = "2208_aoc"
+path = "./src/bin/2022/08/main.rs"
+
+[[bin]]
+name = "2209_aoc"
+path = "./src/bin/2022/09/main.rs"
+
 [lib]
 name = "util"
 path = "./src/lib/lib.rs"
@@ -36,3 +48,4 @@ path = "./src/lib/lib.rs"
 [dependencies]
 num-traits = "0.2.15"
 num-derive = "0.3.3"
+itertools = "0.10.5"

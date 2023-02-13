@@ -14,11 +14,10 @@ fn solve(input: &str, window_size: usize) -> String {
     let chars = input.chars().enumerate().collect::<Vec<_>>();
     let start_window = chars
         .windows(window_size)
-        .filter(|window| {
+        .find(|window| {
             let values = window.iter().map(|(_, value)| *value).collect::<Vec<_>>();
             is_unique(&values)
         })
-        .next()
         .unwrap();
     let (index, _) = start_window.last().unwrap();
     (index + 1).to_string()
@@ -37,12 +36,8 @@ fn main() {
     let input = read_file(InputFile::Actual, YEAR, DAY);
 
     if let Some(example) = example {
-        println!("First: Expected {} found {}.", "7", solve_first(&example));
-        println!(
-            "Second: Expected {} found {}.",
-            "19",
-            solve_second(&example)
-        );
+        println!("First: Expected {} found {}.", 7, solve_first(&example));
+        println!("Second: Expected {} found {}.", 19, solve_second(&example));
     }
 
     if let Some(input) = input {
