@@ -49,3 +49,7 @@ path = "./src/lib/lib.rs"
 num-traits = "0.2.15"
 num-derive = "0.3.3"
 itertools = "0.10.5"
+
+[dev-dependencies]
+rstest = "0.16.0"
+pretty_assertions = "1.3.0"
