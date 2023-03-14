@@ -1,4 +1,4 @@
-use std::fs;
+use std::{error::Error, fmt::Display, fs};
 
 pub struct Day<'a>(pub &'a str);
 pub struct Year<'a>(pub &'a str);
@@ -21,5 +21,16 @@ pub fn read_file(file: InputFile, year: Year, day: Day) -> Option<String> {
             println!("File {} couldn't be read ({}).", &path, error.kind());
             None
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct AocError;
+
+impl Error for AocError {}
+
+impl Display for AocError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "An AocError occurred.")
     }
 }
