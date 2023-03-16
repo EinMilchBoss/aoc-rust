@@ -98,7 +98,6 @@ impl Grid {
     fn parse(input: &str) -> Self {
         let width = input
             .lines()
-            .take(1)
             .next()
             .expect("First line does not have at least one byte of data.")
             .len();
