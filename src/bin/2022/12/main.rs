@@ -1,54 +1,42 @@
-use std::fmt::Display;
+use std::{collections::HashSet, fmt::Display};
 
 use util::std::*;
 
 const YEAR: Year = Year("2022");
 const DAY: Day = Day("12");
 
-const START: char = 'S';
-const END: char = 'E';
+const START: u8 = b'S';
+const END: u8 = b'E';
+const LOWEST: u8 = b'a';
+const HIGHEST: u8 = b'z';
+
+fn _print_movement(
+    grid: &Grid,
+    next: &HashSet<Coordinate>,
+    visited: &HashSet<Coordinate>,
+) -> String {
+    let mut buffer = String::new();
+
+    for y in 0..grid.height {
+        buffer.push('|');
+        for x in 0..grid.width {
+            let current = Coordinate { x, y };
+            if next.contains(&current) {
+                buffer.push_str("*|");
+            } else if visited.contains(&current) {
+                buffer.push_str("#|");
+            } else {
+                buffer.push_str(".|");
+            }
+        }
+        buffer.push('\n');
+    }
+
+    buffer
+}
 
 #[derive(Clone, Copy, Debug)]
 struct Elevation(u8);
-
-impl Elevation {
-    fn is_step_possible(&self, to: Elevation) -> bool {
-        to.0 - self.0 <= 1
-    }
-}
-
-// impl TryFrom<char> for Elevation {
-//     type Error = AocError;
-
-//     fn try_from(value: char) -> Result<Self, Self::Error> {
-//         let base = b'a';
-//         match value {
-//             'S' => Ok(Elevation(b'a' - base)),
-//             'E' => Ok(Elevation(b'z' - base)),
-//             'a'..='z' => Ok(Elevation(value as u8 - base)),
-//             _ => Err(AocError),
-//         }
-//     }
-// }
-
-// struct Position {
-//     x: isize,
-//     y: isize,
-// }
-
-// impl Position {
-//     fn new(x: isize, y: isize) -> Self {
-//         Position { x, y }
-//     }
-// }
-
-// impl Add for Position {
-//     type Output = Self;
-
-//     fn add(self, rhs: Self) -> Self::Output {
-//         Self::Output::new(self.x + rhs.x, self.y + rhs.y)
-//     }
-// }
 
 #[derive(Clone, Copy, Debug)]
 enum Tile {
@@ -57,74 +45,30 @@ enum Tile {
     End(Coordinate),
 }
 
-// impl From<char> for Tile {
-//     fn from(value: char) -> Self {
-//         match value {
-//             'S' => Tile::Start,
-//             'E' => Tile::End,
-//             _ => Tile::Normal,
-//         }
-//     }
-// }
+impl Tile {
+    fn elevation(&self) -> Elevation {
+        match self {
+            Tile::Normal(elevation) => *elevation,
+            Tile::Start(_) => Elevation(0),
+            Tile::End(_) => Elevation(HIGHEST - LOWEST),
+        }
+    }
+
+    fn is_step_possible(&self, to: &Tile) -> bool {
+        let Elevation(from) = self.elevation();
+        let Elevation(to) = to.elevation();
+        !matches!(to.checked_sub(from), Some(difference) if difference > 1)
+    }
+}
 
 struct Distance(usize);
-
-// impl Tile {
-//     fn new(elev: Elevation, pos: Position, ttype: Tile) -> Self {
-//         Tile { elev, pos, ttype }
-//     }
-// }
-
-// fn get_coord(grid: &Vec<Vec<Elevation>>, pos: &Position) -> Option<Elevation> {
-//     if pos.y < 0 || pos.x < 0 {
-//         return None;
-//     }
-
-//     let column = grid.get(pos.y as usize)?;
-//     column.get(pos.x as usize)?
-// }
-
-// fn shortest_distance(grid: &Vec<Vec<Elevation>>, start: Position, end: Position) -> Distance {
-//     // gerade, nächste, gesehen
-//     // gerade ist Start
-//     //
-//     let start_elev = get_coord(grid, &start).unwrap();
-//     let nexts = vec![];
-//     let next = [
-//         start + Position::new(0, 1),
-//         start + Position::new(0, -1),
-//         start + Position::new(1, 0),
-//         start + Position::new(-1, 0),
-//     ];
-//     if (start_elev.is_step_possible(next)) {
-//         nexts.push(next)
-//     }
-
-//     fn bfs(
-//         grid: &Vec<Vec<Tile>>,
-//         end: &Tile,
-//         current: &Tile,
-//         next: Vec<Tile>,
-//         step: usize,
-//     ) -> usize {
-//         if (current == end) {
-//             return step;
-//         }
-
-//         grid.into_iter().position();
-
-//         0
-//     }
-
-//     Distance(bfs(grid, end, start, vec![start], 0))
-// }
 
 struct Vector {
     dx: isize,
     dy: isize,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 struct Coordinate {
     x: usize,
     y: usize,
@@ -159,8 +103,8 @@ impl Grid {
         for (y, line) in input.lines().enumerate() {
             for (x, byte) in line.bytes().enumerate() {
                 tiles.push(match byte {
-                    b'S' => Tile::Start(Coordinate { x, y }),
-                    b'E' => Tile::End(Coordinate { x, y }),
+                    START => Tile::Start(Coordinate { x, y }),
+                    END => Tile::End(Coordinate { x, y }),
                     b'a'..=b'z' => Tile::Normal(Elevation(byte - b'a')),
                     _ => panic!(
                         "Encountered illegal byte {} while parsing (char: {}).",
@@ -208,6 +152,9 @@ impl Grid {
     }
 
     fn tile(&self, coordinate: &Coordinate) -> Option<&Tile> {
+        if !self.is_in_bounds(coordinate) {
+            return None;
+        }
         self.tiles.get(coordinate.y * self.width + coordinate.x)
     }
 }
@@ -231,53 +178,68 @@ impl Display for Grid {
     }
 }
 
-fn start_to_end(grid: &Grid) -> usize {
-    // get start
-    // get up down left right
-    // check if step for directions is possible
-    // save next field coords in a HashSet (no duplicates!)
-    // pass hashset to next recursive call
-    // continue until end found
-    // each recursive call increments the step by 1
-    // save the visited coords in a hashset
-
+fn start_to_end(grid: &Grid) -> Distance {
     let start = grid.start();
     let end = grid.end();
 
-    let dirs = [
+    let offsets = [
         Vector { dx: 0, dy: 1 },
         Vector { dx: 0, dy: -1 },
         Vector { dx: 1, dy: 0 },
         Vector { dx: -1, dy: 0 },
     ];
 
-    let coordinates: Vec<_> = dirs
-        .iter()
-        .filter_map(|dir| start.shift(dir))
-        .filter(|coordinate| grid.is_in_bounds(coordinate))
-        .filter_map(|coordinate| grid.tile(&coordinate))
-        .collect();
+    fn bfs(
+        grid: &Grid,
+        current: HashSet<Coordinate>,
+        visited: HashSet<Coordinate>,
+        destination: &Coordinate,
+        offsets: &[Vector; 4],
+        counter: usize,
+    ) -> usize {
+        let next = current
+            .iter()
+            .flat_map(|coordinate| {
+                let from_tile = grid.tile(coordinate).unwrap_or_else(|| {
+                    panic!(
+                        "Current tile at coordinate `{:?}` cannot be found.",
+                        coordinate
+                    )
+                });
 
-    println!("{:#?}", coordinates);
+                offsets.iter().filter_map(|direction| {
+                    let shifted = coordinate.shift(direction)?;
+                    let to_tile = grid.tile(&shifted)?;
+                    match from_tile.is_step_possible(to_tile) {
+                        true => Some(shifted),
+                        false => None,
+                    }
+                })
+            })
+            .filter(|coordinate| !visited.contains(coordinate));
 
-    0
+        if next.clone().any(|ref x| x == destination) {
+            return counter + 1;
+        }
+
+        let next = next.collect();
+        let visited = visited.union(&next).copied().collect();
+        bfs(grid, next, visited, destination, offsets, counter + 1)
+    }
+
+    Distance(bfs(
+        grid,
+        HashSet::from([*start]),
+        HashSet::from([*start]),
+        end,
+        &offsets,
+        0,
+    ))
 }
 
 fn solve_first(input: &str) -> String {
-    // elevation a - z
-    // S is start; E is end
-    // S == a; E == z
-    // as FEW steps as possible (bfs)
-    // up down left right are possible directions
-    // only possible if elevation difference is <= 1
-
-    //let griddy = Grid::parse("");
     let grid = Grid::parse(input);
-    println!("{}", &grid);
-    start_to_end(&grid);
-    //shortest_distance(&grid, &start, &end);
-
-    "".to_string()
+    start_to_end(&grid).0.to_string()
 }
 
 fn solve_second(_input: &str) -> String {
@@ -294,7 +256,7 @@ fn main() {
     }
 
     if let Some(input) = input {
-        //println!("First: {}", solve_first(&input));
+        println!("First: {}", solve_first(&input));
         println!("Second: {}", solve_second(&input));
     }
 }
