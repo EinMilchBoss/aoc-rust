@@ -218,7 +218,7 @@ fn start_to_end(grid: &Grid) -> Distance {
         }
 
         let next: &HashSet<_> = &next.collect();
-        visited.extend(next.iter());
+        visited.extend(next);
         bfs(grid, next, visited, destination, counter + 1)
     }
 
