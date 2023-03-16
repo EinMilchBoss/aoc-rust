@@ -10,6 +10,13 @@ const END: u8 = b'E';
 const LOWEST: u8 = b'a';
 const HIGHEST: u8 = b'z';
 
+static NEIGHBOR_OFFSETS: [Vector; 4] = [
+    Vector { dx: 0, dy: 1 },
+    Vector { dx: 0, dy: -1 },
+    Vector { dx: 1, dy: 0 },
+    Vector { dx: -1, dy: 0 },
+];
+
 fn _print_movement(
     grid: &Grid,
     next: &HashSet<Coordinate>,
@@ -38,7 +45,7 @@ fn _print_movement(
 #[derive(Clone, Copy, Debug)]
 struct Elevation(u8);
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy)]
 enum Tile {
     Normal(Elevation),
     Start(Coordinate),
@@ -47,11 +54,11 @@ enum Tile {
 
 impl Tile {
     fn elevation(&self) -> Elevation {
-        match self {
-            Tile::Normal(elevation) => *elevation,
-            Tile::Start(_) => Elevation(0),
-            Tile::End(_) => Elevation(HIGHEST - LOWEST),
-        }
+        Elevation(match self {
+            Tile::Normal(Elevation(elevation)) => *elevation,
+            Tile::Start(_) => 0,
+            Tile::End(_) => HIGHEST - LOWEST,
+        })
     }
 
     fn is_step_possible(&self, to: &Tile) -> bool {
@@ -60,8 +67,6 @@ impl Tile {
         !matches!(to.checked_sub(from), Some(difference) if difference > 1)
     }
 }
-
-struct Distance(usize);
 
 struct Vector {
     dx: isize,
@@ -99,20 +104,21 @@ impl Grid {
             .len();
         let height = input.lines().count();
 
-        let mut tiles = Vec::new();
-        for (y, line) in input.lines().enumerate() {
-            for (x, byte) in line.bytes().enumerate() {
-                tiles.push(match byte {
+        let tiles = input
+            .lines()
+            .enumerate()
+            .flat_map(|(y, line)| {
+                line.bytes().enumerate().map(move |(x, byte)| match byte {
                     START => Tile::Start(Coordinate { x, y }),
                     END => Tile::End(Coordinate { x, y }),
-                    b'a'..=b'z' => Tile::Normal(Elevation(byte - b'a')),
+                    LOWEST..=HIGHEST => Tile::Normal(Elevation(byte - LOWEST)),
                     _ => panic!(
                         "Encountered illegal byte {} while parsing (char: {}).",
                         byte, byte as char
                     ),
-                });
-            }
-        }
+                })
+            })
+            .collect();
 
         Self {
             tiles,
@@ -124,12 +130,9 @@ impl Grid {
     fn start(&self) -> &Coordinate {
         self.tiles
             .iter()
-            .find_map(|tile| {
-                if let Tile::Start(coordinate) = tile {
-                    Some(coordinate)
-                } else {
-                    None
-                }
+            .find_map(|tile| match tile {
+                Tile::Start(coordinate) => Some(coordinate),
+                _ => None,
             })
             .expect("Start was not found in grid.")
     }
@@ -137,12 +140,9 @@ impl Grid {
     fn end(&self) -> &Coordinate {
         self.tiles
             .iter()
-            .find_map(|tile| {
-                if let Tile::End(coordinate) = tile {
-                    Some(coordinate)
-                } else {
-                    None
-                }
+            .find_map(|tile| match tile {
+                Tile::End(coordinate) => Some(coordinate),
+                _ => None,
             })
             .expect("End was not found in grid.")
     }
@@ -157,6 +157,24 @@ impl Grid {
         }
         self.tiles.get(coordinate.y * self.width + coordinate.x)
     }
+
+    fn valid_steps(&self, from: &Coordinate) -> Vec<Coordinate> {
+        let from_tile = self
+            .tile(from)
+            .unwrap_or_else(|| panic!("Current tile at coordinate `{:?}` cannot be found.", from));
+
+        NEIGHBOR_OFFSETS
+            .iter()
+            .filter_map(|offset| {
+                let to = from.shift(offset)?;
+                let to_tile = self.tile(&to)?;
+                match from_tile.is_step_possible(to_tile) {
+                    true => Some(to),
+                    false => None,
+                }
+            })
+            .collect()
+    }
 }
 
 impl Display for Grid {
@@ -164,11 +182,11 @@ impl Display for Grid {
         for y in 0..self.height {
             write!(f, "|")?;
             for x in 0..self.width {
-                let tile = *self.tiles.get(y * self.width + x).ok_or(std::fmt::Error)?;
+                let tile = self.tiles.get(y * self.width + x).ok_or(std::fmt::Error)?;
                 let elevation = match tile {
                     Tile::Normal(Elevation(elevation)) => format!("{:0>2}", elevation),
-                    Tile::Start(_) => "SS".to_owned(),
-                    Tile::End(_) => "EE".to_owned(),
+                    Tile::Start(_) => "SS".to_string(),
+                    Tile::End(_) => "EE".to_string(),
                 };
                 write!(f, "{}|", elevation)?;
             }
@@ -178,68 +196,46 @@ impl Display for Grid {
     }
 }
 
+struct Distance(usize);
+
 fn start_to_end(grid: &Grid) -> Distance {
     let start = grid.start();
     let end = grid.end();
 
-    let offsets = [
-        Vector { dx: 0, dy: 1 },
-        Vector { dx: 0, dy: -1 },
-        Vector { dx: 1, dy: 0 },
-        Vector { dx: -1, dy: 0 },
-    ];
-
     fn bfs(
         grid: &Grid,
-        current: HashSet<Coordinate>,
-        visited: HashSet<Coordinate>,
+        current: &HashSet<Coordinate>,
+        visited: &mut HashSet<Coordinate>,
         destination: &Coordinate,
-        offsets: &[Vector; 4],
         counter: usize,
     ) -> usize {
         let next = current
             .iter()
-            .flat_map(|coordinate| {
-                let from_tile = grid.tile(coordinate).unwrap_or_else(|| {
-                    panic!(
-                        "Current tile at coordinate `{:?}` cannot be found.",
-                        coordinate
-                    )
-                });
-
-                offsets.iter().filter_map(|direction| {
-                    let shifted = coordinate.shift(direction)?;
-                    let to_tile = grid.tile(&shifted)?;
-                    match from_tile.is_step_possible(to_tile) {
-                        true => Some(shifted),
-                        false => None,
-                    }
-                })
-            })
+            .flat_map(|coordinate| grid.valid_steps(coordinate))
             .filter(|coordinate| !visited.contains(coordinate));
 
         if next.clone().any(|ref x| x == destination) {
             return counter + 1;
         }
 
-        let next = next.collect();
-        let visited = visited.union(&next).copied().collect();
-        bfs(grid, next, visited, destination, offsets, counter + 1)
+        let next: &HashSet<_> = &next.collect();
+        visited.extend(next.iter());
+        bfs(grid, next, visited, destination, counter + 1)
     }
 
     Distance(bfs(
         grid,
-        HashSet::from([*start]),
-        HashSet::from([*start]),
+        &HashSet::from([*start]),
+        &mut HashSet::from([*start]),
         end,
-        &offsets,
         0,
     ))
 }
 
 fn solve_first(input: &str) -> String {
     let grid = Grid::parse(input);
-    start_to_end(&grid).0.to_string()
+    let Distance(distance) = start_to_end(&grid);
+    distance.to_string()
 }
 
 fn solve_second(_input: &str) -> String {
