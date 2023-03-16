@@ -158,7 +158,7 @@ impl Grid {
         self.tiles.get(coordinate.y * self.width + coordinate.x)
     }
 
-    fn valid_steps(&self, from: &Coordinate) -> Vec<Coordinate> {
+    fn valid_neighbors(&self, from: &Coordinate) -> Vec<Coordinate> {
         let from_tile = self
             .tile(from)
             .unwrap_or_else(|| panic!("Current tile at coordinate `{:?}` cannot be found.", from));
@@ -211,7 +211,7 @@ fn start_to_end(grid: &Grid) -> Distance {
     ) -> usize {
         let next = current
             .iter()
-            .flat_map(|coordinate| grid.valid_steps(coordinate))
+            .flat_map(|coordinate| grid.valid_neighbors(coordinate))
             .filter(|coordinate| !visited.contains(coordinate));
 
         if next.clone().any(|ref x| x == destination) {
