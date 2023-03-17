@@ -45,7 +45,7 @@ fn _print_movement(
 #[derive(Clone, Copy, Debug)]
 struct Elevation(u8);
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 enum Tile {
     Normal(Elevation),
     Start(Coordinate),
@@ -197,36 +197,77 @@ impl Display for Grid {
 
 struct Distance(usize);
 
+fn bfs(
+    grid: &Grid,
+    current: &HashSet<Coordinate>,
+    visited: &mut HashSet<Coordinate>,
+    destinations: &HashSet<Coordinate>,
+    counter: usize,
+) -> usize {
+    let next = current
+        .iter()
+        .flat_map(|coordinate| grid.valid_neighbors(coordinate))
+        .filter(|coordinate| !visited.contains(coordinate));
+
+    //next.interse
+    // if next.clone().any(|ref x| x == destination) {
+    //     return counter + 1;
+    // }
+
+    let next: &HashSet<_> = &next.collect();
+    if next.intersection(destinations).count() >= 1 {
+        return counter + 1;
+    }
+
+    visited.extend(next);
+    bfs(grid, next, visited, destinations, counter + 1)
+}
+
 fn start_to_end(grid: &Grid) -> Distance {
     let start = grid.start();
     let end = grid.end();
-
-    fn bfs(
-        grid: &Grid,
-        current: &HashSet<Coordinate>,
-        visited: &mut HashSet<Coordinate>,
-        destination: &Coordinate,
-        counter: usize,
-    ) -> usize {
-        let next = current
-            .iter()
-            .flat_map(|coordinate| grid.valid_neighbors(coordinate))
-            .filter(|coordinate| !visited.contains(coordinate));
-
-        if next.clone().any(|ref x| x == destination) {
-            return counter + 1;
-        }
-
-        let next: &HashSet<_> = &next.collect();
-        visited.extend(next);
-        bfs(grid, next, visited, destination, counter + 1)
-    }
 
     Distance(bfs(
         grid,
         &HashSet::from([*start]),
         &mut HashSet::from([*start]),
-        end,
+        &HashSet::from([*end]),
+        0,
+    ))
+}
+
+fn tiles<F>(grid: &Grid, mut f: F) -> Vec<Coordinate>
+where
+    F: FnMut(&Tile, Coordinate) -> Option<Coordinate>,
+{
+    (0..grid.height)
+        .flat_map(|y| {
+            (0..grid.width).map(move |x| {
+                let coordinate = Coordinate { x, y };
+                let tile = grid.tile(&coordinate).unwrap_or_else(|| {
+                    panic!("Coordinate {:?} could not be found in grid.", coordinate)
+                });
+                //println!("{:?} {:?}", tile, coordinate);
+                (tile, coordinate)
+            })
+        })
+        .filter_map(|(tile, coordinate)| f(tile, coordinate))
+        .collect()
+}
+
+fn lowest_to_end(grid: &Grid) -> Distance {
+    let starts = tiles(grid, |tile, coordinate| match tile {
+        Tile::Normal(Elevation(elevation)) if *elevation == 0 => Some(coordinate),
+        Tile::Start(_) => Some(coordinate),
+        _ => None,
+    });
+    let end = grid.end();
+
+    Distance(bfs(
+        grid,
+        &HashSet::from_iter(starts.clone()),
+        &mut HashSet::from_iter(starts),
+        &HashSet::from([*end]),
         0,
     ))
 }
@@ -237,8 +278,10 @@ fn solve_first(input: &str) -> String {
     distance.to_string()
 }
 
-fn solve_second(_input: &str) -> String {
-    "".to_string()
+fn solve_second(input: &str) -> String {
+    let grid = Grid::parse(input);
+    let Distance(distance) = lowest_to_end(&grid);
+    distance.to_string()
 }
 
 fn main() {
@@ -247,7 +290,7 @@ fn main() {
 
     if let Some(example) = example {
         println!("First: Expected {} found {}.", 31, solve_first(&example));
-        println!("Second: Expected {} found {}.", 0, solve_second(&example));
+        println!("Second: Expected {} found {}.", 29, solve_second(&example));
     }
 
     if let Some(input) = input {
