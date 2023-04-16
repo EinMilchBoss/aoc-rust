@@ -18,6 +18,10 @@ name = "1503_aoc"
 path = "./src/bin/2015/03/main.rs"
 
 [[bin]]
+name = "1504_aoc"
+path = "./src/bin/2015/04/main.rs"
+
+[[bin]]
 name = "2201_aoc"
 path = "./src/bin/2022/01/main.rs"
 
@@ -70,6 +74,7 @@ num-traits = "0.2.15"
 num-derive = "0.3.3"
 itertools = "0.10.5"
 nom = "7.1.3"
+md5 = "0.7.0"
 
 [dev-dependencies]
 rstest = "0.17.0"
