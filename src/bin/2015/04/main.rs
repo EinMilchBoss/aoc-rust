@@ -3,6 +3,11 @@ use std::{
     thread,
 };
 
+fn hash_secret_key(key: &str, counter: usize) -> String {
+    let secret_key = format!("{}{}", key, counter);
+    format!("{:x}", md5::compute(secret_key))
+}
+
 fn solve_first(input: &str) -> String {
     let input = Arc::new(RwLock::new(input.to_string()));
     let found_result = Arc::new(RwLock::new(false));
@@ -27,8 +32,7 @@ fn solve_first(input: &str) -> String {
             let input = Arc::clone(&input);
             let tx = tx.clone();
             move || {
-                let secret_key = format!("{}{}", input.read().unwrap(), counter);
-                let hash = format!("{:x}", md5::compute(secret_key));
+                let hash = hash_secret_key(&input.read().unwrap(), counter);
                 let _ = tx.send((counter, hash));
             }
         });
@@ -67,8 +71,7 @@ fn solve_second(input: &str) -> String {
             let input = Arc::clone(&input);
             let tx = tx.clone();
             move || {
-                let secret_key = format!("{}{}", input.read().unwrap(), counter);
-                let hash = format!("{:x}", md5::compute(secret_key));
+                let hash = hash_secret_key(&input.read().unwrap(), counter);
                 let _ = tx.send((counter, hash));
             }
         });
