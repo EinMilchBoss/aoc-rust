@@ -5,10 +5,10 @@ use nom::{
     combinator::{map_res, opt, recognize},
     multi::many0,
     sequence::pair,
-    IResult,
+    Finish, IResult,
 };
 
-use super::*;
+use crate::instruction::{Command, Coordinate, CoordinatePair, Instruction};
 
 fn parse_coordinate(input: &str) -> IResult<&str, Coordinate> {
     let (input, x) = map_res(recognize(digit1), str::parse)(input)?;
@@ -42,7 +42,7 @@ fn parse_instruction(input: &str) -> IResult<&str, Instruction> {
     ))
 }
 
-pub fn parse(input: &str) -> Vec<Instruction> {
-    let (_, instructions) = many0(parse_instruction)(input).expect("Parsing failed.");
-    instructions
+pub fn parse_instructions(input: &str) -> Result<Vec<Instruction>, nom::error::Error<&str>> {
+    let (_, instructions) = many0(parse_instruction)(input).finish()?;
+    Ok(instructions)
 }
