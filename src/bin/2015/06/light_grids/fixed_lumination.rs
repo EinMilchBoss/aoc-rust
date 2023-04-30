@@ -9,8 +9,8 @@ impl FixedLuminationLightGrid {
     }
 
     pub fn execute_instruction(&mut self, instruction: Instruction) {
-        for current_coordinate in &instruction.coordinate_pair.area() {
-            let light = self.get_mut(current_coordinate);
+        for current_coordinate in instruction.coordinate_pair.area() {
+            let light = self.get_mut(&current_coordinate);
             match instruction.command {
                 Command::On => *light = true,
                 Command::Off => *light = false,
