@@ -1,5 +1,5 @@
-mod instruction;
 mod parser;
+mod types;
 
-pub use instruction::*;
 pub use parser::parse_instructions;
+pub use types::*;
