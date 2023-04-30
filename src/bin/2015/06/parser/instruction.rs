@@ -34,15 +34,17 @@ fn parse_command(input: &str) -> IResult<&str, Command> {
 }
 
 fn parse_coordinate_pair(input: &str) -> IResult<&str, CoordinatePair> {
-    let (input, from_coordinate) = parse_coordinate(input)?;
-    let (input, _) = tag(" through ")(input)?;
-    let (input, to_coordinate) = parse_coordinate(input)?;
+    let (input, (from_coordinate, to_coordinate)) =
+        separated_pair(parse_coordinate, tag(" through "), parse_coordinate)(input)?;
     Ok((input, CoordinatePair(from_coordinate, to_coordinate)))
 }
 
 fn parse_coordinate(input: &str) -> IResult<&str, Coordinate> {
-    let (input, x) = map_res(recognize(digit1), str::parse)(input)?;
-    let (input, _) = tag(",")(input)?;
-    let (input, y) = map_res(recognize(digit1), str::parse)(input)?;
+    let (input, (x, y)) = separated_pair(parse_digit, char(','), parse_digit)(input)?;
     Ok((input, Coordinate { x, y }))
+}
+
+fn parse_digit(input: &str) -> IResult<&str, u16> {
+    let (input, number) = map_res(recognize(digit1), str::parse)(input)?;
+    Ok((input, number))
 }
