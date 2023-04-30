@@ -9,8 +9,8 @@ impl VariableLuminationLightGrid {
     }
 
     pub fn execute_instruction(&mut self, instruction: Instruction) {
-        for current_coordinate in instruction.coordinate_pair.iter_area() {
-            let light = self.get_mut(&current_coordinate);
+        for current_coordinate in &instruction.coordinate_pair.area() {
+            let light = self.get_mut(current_coordinate);
             match instruction.command {
                 Command::On => *light += 1,
                 Command::Off => *light = light.saturating_sub(1),

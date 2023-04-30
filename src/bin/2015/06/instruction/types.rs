@@ -32,25 +32,14 @@ impl From<&str> for Command {
 }
 
 impl CoordinatePair {
-    pub fn iter_area(&self) -> impl Iterator<Item = Coordinate> {
+    pub fn area(&self) -> Vec<Coordinate> {
+        let mut coordinates = Vec::new();
         let CoordinatePair(from_coordinate, to_coordinate) = self;
-
-        (from_coordinate.x..=to_coordinate.x)
-            .zip(from_coordinate.y..=to_coordinate.y)
-            .map(|(x, y)| Coordinate { x, y })
+        for y in from_coordinate.y..=to_coordinate.y {
+            for x in from_coordinate.x..=to_coordinate.x {
+                coordinates.push(Coordinate { x, y });
+            }
+        }
+        coordinates
     }
 }
-
-// impl IntoIterator for CoordinatePair {
-//     type Item = Coordinate;
-
-//     type IntoIter = Box<dyn Iterator<Item = Self::Item>>;
-
-//     fn into_iter(self) -> Self::IntoIter {
-//         let CoordinatePair(from_coordinate, to_coordinate) = coordinate_pair;
-
-//         (from_coordinate.x..=to_coordinate.x)
-//             .zip(from_coordinate.y..=to_coordinate.y)
-//             .map(|(x, y)| Coordinate { x, y })
-//     }
-// }
