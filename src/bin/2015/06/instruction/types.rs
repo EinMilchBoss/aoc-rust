@@ -69,27 +69,24 @@ impl CoordinatePairArea {
 
     fn is_end_of_row(&self) -> bool {
         let CoordinatePair(_, highest) = self.coordinate_pair;
-        let Coordinate { x: last_x, .. } = self.safely_unwrap_current();
-        last_x >= highest.x
+        let last = self.safely_unwrap_current();
+        last.x >= highest.x
     }
 
     fn start_at_next_row(&mut self) {
         let CoordinatePair(lowest, _) = self.coordinate_pair;
-        let Coordinate { y: last_y, .. } = self.safely_unwrap_current();
+        let last = self.safely_unwrap_current();
         self.current = Some(Coordinate {
             x: lowest.x,
-            y: last_y + 1,
+            y: last.y + 1,
         });
     }
 
     fn move_right(&mut self) {
-        let Coordinate {
-            x: last_x,
-            y: last_y,
-        } = self.safely_unwrap_current();
+        let last = self.safely_unwrap_current();
         self.current = Some(Coordinate {
-            x: last_x + 1,
-            y: last_y,
+            x: last.x + 1,
+            y: last.y,
         })
     }
 
