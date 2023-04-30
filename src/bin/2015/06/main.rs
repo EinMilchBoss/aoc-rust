@@ -1,28 +1,27 @@
-use light_grids::{fixed_light_grid::FixedLightGrid, variable_light_grid::VariableLightGrid};
-use util::std::*;
-
 mod instruction;
 mod light_grids;
-mod parser;
+
+use light_grids::{FixedLuminationLightGrid, VariableLuminationLightGrid};
+use util::std::*;
 
 const YEAR: Year = Year("2015");
 const DAY: Day = Day("06");
 
 fn solve_first(input: &str) -> String {
-    let instructions = parser::instruction::parse_instructions(input).expect("Parsing failed.");
-    let mut grid = FixedLightGrid::turned_off();
-    instructions
-        .into_iter()
-        .for_each(|instruction| grid.execute_instruction(instruction));
+    let instructions = instruction::parse_instructions(input).expect("Parsing failed.");
+    let mut grid = FixedLuminationLightGrid::turned_off();
+    for instruction in instructions {
+        grid.execute_instruction(instruction);
+    }
     grid.count_turned_on_lights().to_string()
 }
 
 fn solve_second(input: &str) -> String {
-    let instructions = parser::instruction::parse_instructions(input).expect("Parsing failed.");
-    let mut grid = VariableLightGrid::turned_off();
-    instructions
-        .into_iter()
-        .for_each(|instruction| grid.execute_instruction(instruction));
+    let instructions = instruction::parse_instructions(input).expect("Parsing failed.");
+    let mut grid = VariableLuminationLightGrid::turned_off();
+    for instruction in instructions {
+        grid.execute_instruction(instruction);
+    }
     grid.count_turned_on_lights().to_string()
 }
 

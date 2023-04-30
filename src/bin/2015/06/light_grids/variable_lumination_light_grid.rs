@@ -1,9 +1,9 @@
+use super::{GRID_DIMENSION_SIZE, GRID_SIZE};
 use crate::instruction::{Command, Coordinate, CoordinatePair, Instruction};
-use crate::light_grids::{GRID_DIMENSION_SIZE, GRID_SIZE};
 
-pub struct VariableLightGrid([u8; GRID_SIZE]);
+pub struct VariableLuminationLightGrid([u8; GRID_SIZE]);
 
-impl VariableLightGrid {
+impl VariableLuminationLightGrid {
     pub fn turned_off() -> Self {
         Self([0; GRID_SIZE])
     }

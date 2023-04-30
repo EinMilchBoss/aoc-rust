@@ -3,9 +3,9 @@ use crate::{
     light_grids::{GRID_DIMENSION_SIZE, GRID_SIZE},
 };
 
-pub struct FixedLightGrid([bool; GRID_SIZE]);
+pub struct FixedLuminationLightGrid([bool; GRID_SIZE]);
 
-impl FixedLightGrid {
+impl FixedLuminationLightGrid {
     pub fn turned_off() -> Self {
         Self([false; GRID_SIZE])
     }
