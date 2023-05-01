@@ -23,12 +23,9 @@ fn crate_stack_amount(last_line: &str) -> usize {
         .unwrap() as usize
 }
 
-fn parse_crate_stacks(crate_lines: &Vec<&str>, amount: usize) -> Vec<CrateStack> {
+fn parse_crate_stacks(crate_lines: &[&str], amount: usize) -> Vec<CrateStack> {
     let mut crate_stacks = vec![CrateStack::new(); amount];
-    let crate_char_indices = (0..amount)
-        .into_iter()
-        .map(|it| 4 * it + 1)
-        .collect::<Vec<_>>();
+    let crate_char_indices = (0..amount).map(|it| 4 * it + 1).collect::<Vec<_>>();
 
     for line in crate_lines.iter().rev() {
         let crate_chars = line
@@ -65,7 +62,7 @@ fn parse_instructions(instruction_lines: Vec<&str>) -> Vec<Instruction> {
         .collect::<Vec<_>>()
 }
 
-fn peek_crates(crate_stacks: &Vec<CrateStack>) -> String {
+fn peek_crates(crate_stacks: &[CrateStack]) -> String {
     crate_stacks
         .iter()
         .map(|it| it.last().unwrap())
@@ -119,12 +116,8 @@ fn main() {
     let input = read_file(InputFile::Actual, YEAR, DAY);
 
     if let Some(example) = example {
-        println!("First: Expected {} found {}.", "CMZ", solve_first(&example));
-        println!(
-            "Second: Expected {} found {}.",
-            "MCD",
-            solve_second(&example)
-        );
+        println!("First: Expected CMZ found {}.", solve_first(&example));
+        println!("Second: Expected MCD found {}.", solve_second(&example));
     }
 
     if let Some(input) = input {
