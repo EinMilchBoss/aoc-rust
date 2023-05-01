@@ -24,10 +24,10 @@ pub enum Command {
     Not(Wire),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, Copy)]
 pub struct Signal(pub u16);
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Hash)]
 pub struct Wire(pub String);
 
 pub fn parse_instructions(input: &str) -> Result<Vec<Instruction>, nom::error::Error<&str>> {
