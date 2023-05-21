@@ -8,9 +8,9 @@ use nom::{
     Finish, IResult,
 };
 
-type SignalType = u16;
+pub type SignalType = u16;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Instruction {
     pub command: Command,
     pub destination: Wire,
@@ -38,7 +38,7 @@ pub enum CommandInput {
     Wire(Wire),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Signal(pub SignalType);
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
