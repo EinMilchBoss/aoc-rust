@@ -62,6 +62,14 @@ mod tests {
     }
 
     #[test]
+    fn path_following_player_distance_from_start_test() {
+        let mut player = PathFollowingPlayer::at_start();
+        player.position = Point2D::from_cartesian(5, -10);
+
+        assert_eq!(15, player.distance_from_start());
+    }
+
+    #[test]
     fn path_following_player_execute_instruction_test_left() {
         let mut player = PathFollowingPlayer::at_start();
         let instruction = Instruction::Left(Steps(10));
@@ -87,14 +95,6 @@ mod tests {
         player.execute_instruction(&instruction);
 
         assert_eq!(expected, player);
-    }
-
-    #[test]
-    fn path_following_player_distance_from_start_test() {
-        let mut player = PathFollowingPlayer::at_start();
-        player.position = Point2D::from_cartesian(5, -10);
-
-        assert_eq!(15, player.distance_from_start());
     }
 
     #[test]
