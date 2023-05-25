@@ -6,20 +6,11 @@ mod point;
 use instruction::Instruction;
 use player::*;
 
-fn part_1(instructions: &[Instruction]) -> usize {
-    let mut player = PathFollowingPlayer::at_start();
-    for instruction in instructions {
-        player.execute_instruction(instruction);
-    }
-    player.distance_from_start()
-}
+fn main() {
+    let instructions = parse_instructions(INPUT);
 
-fn part_2(instructions: &[Instruction]) -> usize {
-    let mut player = PathRememberingPlayer::at_start();
-    for instruction in instructions {
-        player.execute_instruction(instruction);
-    }
-    todo!()
+    println!("Part 1: \"{}\"", part_1(&instructions));
+    // println!("Part 2: \"{}\"", part_2(&instructions));
 }
 
 fn parse_instructions(input: &str) -> Vec<Instruction> {
@@ -36,11 +27,20 @@ fn parse_instructions(input: &str) -> Vec<Instruction> {
         .collect()
 }
 
-fn main() {
-    let instructions = parse_instructions(INPUT);
+fn part_1(instructions: &[Instruction]) -> usize {
+    let mut player = PathFollowingPlayer::at_start();
+    for instruction in instructions {
+        player.execute_instruction(instruction);
+    }
+    player.distance_from_start()
+}
 
-    println!("Part 1: \"{}\"", part_1(&instructions));
-    // println!("Part 2: \"{}\"", part_2(&instructions));
+fn part_2(instructions: &[Instruction]) -> usize {
+    let mut player = PathRememberingPlayer::at_start();
+    for instruction in instructions {
+        player.execute_instruction(instruction);
+    }
+    todo!()
 }
 
 #[cfg(test)]
