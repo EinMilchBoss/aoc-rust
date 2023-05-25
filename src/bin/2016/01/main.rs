@@ -4,7 +4,7 @@ mod player;
 mod point;
 
 use instruction::Instruction;
-use player::*;
+use player::{PathFollowingPlayer, PathRememberingPlayer};
 
 fn main() {
     let instructions = parse_instructions(INPUT);
