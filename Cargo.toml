@@ -30,6 +30,10 @@ name = "1507_aoc"
 path = "./src/bin/2015/07/main.rs"
 
 [[bin]]
+name = "1601_aoc"
+path = "./src/bin/2016/01/main.rs"
+
+[[bin]]
 name = "2201_aoc"
 path = "./src/bin/2022/01/main.rs"
 
