@@ -53,6 +53,22 @@ mod tests {
     use super::*;
 
     #[test]
+    fn parse_instructions_test_success() {
+        let input = "L12, R34";
+        let expected = vec![Instruction::Left(Steps(12)), Instruction::Right(Steps(34))];
+
+        assert_eq!(expected, parse_instructions(input));
+    }
+
+    #[test]
+    #[should_panic]
+    fn parse_instructions_test_failure() {
+        let input = "L12_R34";
+
+        parse_instructions(input);
+    }
+
+    #[test]
     fn part_1_test() {
         let input = "R1, L2, R3, R4, R5";
         assert_eq!(3, part_1(&parse_instructions(input)));
@@ -68,22 +84,6 @@ mod tests {
 
         let input = "L8, L4, L4, L8";
         assert_eq!(4, part_2(&parse_instructions(input)));
-    }
-
-    #[test]
-    fn parse_instructions_test_success() {
-        let input = "L12, R34";
-        let expected = vec![Instruction::Left(Steps(12)), Instruction::Right(Steps(34))];
-
-        assert_eq!(expected, parse_instructions(input));
-    }
-
-    #[test]
-    #[should_panic]
-    fn parse_instructions_test_failure() {
-        let input = "L12_R34";
-
-        parse_instructions(input);
     }
 }
 

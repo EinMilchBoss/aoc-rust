@@ -20,7 +20,7 @@ impl PathFollowingPlayer {
     }
 
     pub fn distance_from_start(&self) -> usize {
-        self.position.manhattan_distance_to(player::START)
+        player::distance_from_start(&self.position)
     }
 
     pub fn follow_path(&mut self, instruction: &Instruction) {
@@ -59,14 +59,6 @@ mod tests {
         };
 
         assert_eq!(expected, PathFollowingPlayer::at_start());
-    }
-
-    #[test]
-    fn path_following_player_distance_from_start_test() {
-        let mut player = PathFollowingPlayer::at_start();
-        player.position = Point2D::from_cartesian(5, -10);
-
-        assert_eq!(15, player.distance_from_start());
     }
 
     #[test]
