@@ -1,7 +1,7 @@
-use super::START;
 use crate::{
     direction::Direction,
     instruction::{Instruction, Steps},
+    player,
     point::Point2D,
 };
 
@@ -14,16 +14,16 @@ pub struct PathFollowingPlayer {
 impl PathFollowingPlayer {
     pub fn at_start() -> Self {
         Self {
-            position: Point2D::from_cartesian(0, 0),
+            position: player::START,
             direction: Direction::North,
         }
     }
 
     pub fn distance_from_start(&self) -> usize {
-        self.position.manhattan_distance_to(START)
+        self.position.manhattan_distance_to(player::START)
     }
 
-    pub fn execute_instruction(&mut self, instruction: &Instruction) {
+    pub fn follow_path(&mut self, instruction: &Instruction) {
         match instruction {
             Instruction::Left(steps) => {
                 self.direction.turn_left();
@@ -70,7 +70,7 @@ mod tests {
     }
 
     #[test]
-    fn path_following_player_execute_instruction_test_left() {
+    fn path_following_player_follow_path_test_left() {
         let mut player = PathFollowingPlayer::at_start();
         let instruction = Instruction::Left(Steps(10));
         let expected = PathFollowingPlayer {
@@ -78,13 +78,13 @@ mod tests {
             direction: Direction::West,
         };
 
-        player.execute_instruction(&instruction);
+        player.follow_path(&instruction);
 
         assert_eq!(expected, player);
     }
 
     #[test]
-    fn path_following_player_execute_instruction_test_right() {
+    fn path_following_player_follow_path_test_right() {
         let mut player = PathFollowingPlayer::at_start();
         let instruction = Instruction::Right(Steps(10));
         let expected = PathFollowingPlayer {
@@ -92,7 +92,7 @@ mod tests {
             direction: Direction::East,
         };
 
-        player.execute_instruction(&instruction);
+        player.follow_path(&instruction);
 
         assert_eq!(expected, player);
     }
@@ -103,18 +103,18 @@ mod tests {
 
         player.direction = Direction::North;
         player.walk(Steps(5));
-        assert_eq!(player.position, Point2D::from_cartesian(0, 5));
+        assert_eq!(Point2D::from_cartesian(0, 5), player.position);
 
         player.direction = Direction::East;
         player.walk(Steps(5));
-        assert_eq!(player.position, Point2D::from_cartesian(5, 5));
+        assert_eq!(Point2D::from_cartesian(5, 5), player.position);
 
         player.direction = Direction::South;
         player.walk(Steps(5));
-        assert_eq!(player.position, Point2D::from_cartesian(5, 0));
+        assert_eq!(Point2D::from_cartesian(5, 0), player.position);
 
         player.direction = Direction::West;
         player.walk(Steps(5));
-        assert_eq!(player.position, Point2D::from_cartesian(0, 0));
+        assert_eq!(Point2D::from_cartesian(0, 0), player.position);
     }
 }

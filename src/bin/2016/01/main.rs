@@ -10,7 +10,7 @@ fn main() {
     let instructions = parse_instructions(INPUT);
 
     println!("Part 1: \"{}\"", part_1(&instructions));
-    // println!("Part 2: \"{}\"", part_2(&instructions));
+    println!("Part 2: \"{}\"", part_2(&instructions));
 }
 
 fn parse_instructions(input: &str) -> Vec<Instruction> {
@@ -30,7 +30,7 @@ fn parse_instructions(input: &str) -> Vec<Instruction> {
 fn part_1(instructions: &[Instruction]) -> usize {
     let mut player = PathFollowingPlayer::at_start();
     for instruction in instructions {
-        player.execute_instruction(instruction);
+        player.follow_path(instruction);
     }
     player.distance_from_start()
 }
@@ -38,9 +38,12 @@ fn part_1(instructions: &[Instruction]) -> usize {
 fn part_2(instructions: &[Instruction]) -> usize {
     let mut player = PathRememberingPlayer::at_start();
     for instruction in instructions {
-        player.execute_instruction(instruction);
+        player.find_first_position_visited_twice(instruction);
+        if player.has_visited_position_twice() {
+            return player.distance_from_start();
+        }
     }
-    todo!()
+    panic!("Not one position was visited twice.");
 }
 
 #[cfg(test)]
@@ -60,10 +63,10 @@ mod tests {
 
     #[test]
     fn part_2_test() {
-        let input = "R4, R8, R4, R8";
+        let input = "R8, R4, R4, R8";
         assert_eq!(4, part_2(&parse_instructions(input)));
 
-        let input = "L4, L8, L4, L8";
+        let input = "L8, L4, L4, L8";
         assert_eq!(4, part_2(&parse_instructions(input)));
     }
 
