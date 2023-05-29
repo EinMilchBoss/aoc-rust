@@ -1,6 +1,6 @@
 use crate::code_solver::{ButtonLocation, ButtonNumber};
 
-use std::str::{self, FromStr};
+use std::str::FromStr;
 
 use snafu::prelude::*;
 
@@ -19,13 +19,9 @@ pub struct InstructionParseError {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct CodeInstructions(Vec<Instruction>);
+pub struct CodeInstructions(pub Vec<Instruction>);
 
 impl CodeInstructions {
-    pub fn new(instructions: &[Instruction]) -> Self {
-        Self(instructions.to_vec())
-    }
-
     pub fn solve_code_number(&self, button_location: &mut ButtonLocation) -> ButtonNumber {
         let Self(instructions) = self;
         for instruction in instructions {
@@ -88,23 +84,9 @@ mod tests {
     use rstest::rstest;
 
     #[test]
-    fn code_instructions_new_test() {
-        let input = vec![
-            Instruction::Up,
-            Instruction::Down,
-            Instruction::Left,
-            Instruction::Right,
-        ];
-
-        let actual = CodeInstructions::new(&input);
-
-        assert_eq!(CodeInstructions(input), actual);
-    }
-
-    #[test]
     fn code_instructions_solve_code_number_test_in_bounds() {
         let mut button_location = ButtonLocation::at_start();
-        let code_instructions = CodeInstructions::new(&[
+        let code_instructions = CodeInstructions(vec![
             Instruction::Up,
             Instruction::Down,
             Instruction::Right,
@@ -120,7 +102,7 @@ mod tests {
     #[test]
     fn code_instructions_solve_code_number_test_out_of_bounds() {
         let mut button_location = ButtonLocation::at_start();
-        let code_instructions = CodeInstructions::new(&[
+        let code_instructions = CodeInstructions(vec![
             Instruction::Up,
             Instruction::Up,
             Instruction::Left,
