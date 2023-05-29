@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use snafu::prelude::*;
 
-use crate::door_code::{Button, ButtonNumber};
+use crate::door_code::{Button, ButtonLocation, ButtonNumber};
 
 #[derive(Debug, PartialEq, Snafu)]
 #[snafu(display("String could not be parsed into `CodeInstructions` because of char '{}' at index {}.", source.invalid_char, invalid_char_index))]
@@ -68,6 +68,17 @@ pub enum Instruction {
     Left,
 }
 
+impl Instruction {
+    pub fn button_position_offset(&self) -> ButtonLocation {
+        match self {
+            Self::Up => ButtonLocation::at(0, 1),
+            Self::Down => ButtonLocation::at(0, -1),
+            Self::Right => ButtonLocation::at(1, 0),
+            Self::Left => ButtonLocation::at(-1, 0),
+        }
+    }
+}
+
 impl TryFrom<char> for Instruction {
     type Error = InstructionParseError;
 
@@ -129,7 +140,7 @@ mod tests {
         let returned = code_instructions.solve_code_number(&mut button);
 
         assert_eq!(ButtonNumber('1'), returned);
-        assert_eq!(normal_keypad::KeypadButton::new(-1, 1), button);
+        assert_eq!(normal_keypad::KeypadButton::at_location(-1, 1), button);
     }
 
     #[test]
@@ -153,6 +164,18 @@ mod tests {
         });
 
         assert_eq!(expected, "UDRLXUDRL".parse());
+    }
+
+    #[rstest]
+    #[case(ButtonLocation::at(0, 1), Instruction::Up)]
+    #[case(ButtonLocation::at(0, -1), Instruction::Down)]
+    #[case(ButtonLocation::at(1, 0), Instruction::Right)]
+    #[case(ButtonLocation::at(-1, 0), Instruction::Left)]
+    fn instruction_button_position_offset_test(
+        #[case] expected: ButtonLocation,
+        #[case] instruction: Instruction,
+    ) {
+        assert_eq!(expected, instruction.button_position_offset());
     }
 
     #[rstest]
