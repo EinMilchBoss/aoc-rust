@@ -25,10 +25,10 @@ fn parse_input(input: &str) -> Vec<CodeInstructions> {
 }
 
 fn part_1(input: &[CodeInstructions]) -> String {
-    let mut button_location = normal_keypad::KeypadButton::at_start();
+    let mut button = normal_keypad::KeypadButton::at_start();
     input
         .iter()
-        .map(|code_instructions| code_instructions.solve_code_number(&mut button_location).0)
+        .map(|code_instructions| code_instructions.solve_code_number(&mut button).0)
         .collect()
 }
 

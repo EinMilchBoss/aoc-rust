@@ -58,12 +58,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn button_location_at_start_test() {
+    fn keypad_button_at_start_test() {
         assert_eq!(KeypadButton { x: 0, y: 0 }, KeypadButton::at_start());
     }
 
     #[test]
-    fn button_location_inside_bounds_test() {
+    fn keypad_button_inside_bounds_test() {
         assert_eq!(
             KeypadButton { x: 1, y: -1 },
             KeypadButton::inside_bounds(10, -10)
@@ -73,7 +73,7 @@ mod tests {
     #[rstest]
     #[case(1, 1)]
     #[case(-1, -1)]
-    fn button_location_set_inside_bounds_test(#[case] position: i8, #[case] offset: i8) {
+    fn keypad_button_set_inside_bounds_test(#[case] position: i8, #[case] offset: i8) {
         assert_eq!(position, KeypadButton::set_inside_bounds(position, offset));
     }
 
@@ -87,11 +87,11 @@ mod tests {
     #[case(ButtonNumber('7'), KeypadButton { x: -1, y: -1 })]
     #[case(ButtonNumber('8'), KeypadButton { x: 0, y: -1 })]
     #[case(ButtonNumber('9'), KeypadButton { x: 1, y: -1 })]
-    fn button_location_trait_button_button_number_test(
+    fn keypad_button_trait_button_button_number_test(
         #[case] button_number: ButtonNumber,
-        #[case] button_location: KeypadButton,
+        #[case] button: KeypadButton,
     ) {
-        assert_eq!(button_number, button_location.button_number());
+        assert_eq!(button_number, button.button_number());
     }
 
     #[rstest]
@@ -99,15 +99,15 @@ mod tests {
     #[case(KeypadButton { x: 0, y: -1 }, Instruction::Down)]
     #[case(KeypadButton { x: 1, y: 0 }, Instruction::Right)]
     #[case(KeypadButton { x: -1, y: 0 }, Instruction::Left)]
-    fn button_location_trait_button_follow_instruction_test_in_bounds(
+    fn keypad_button_trait_button_follow_instruction_test_in_bounds(
         #[case] expected: KeypadButton,
         #[case] instruction: Instruction,
     ) {
-        let mut button_location = KeypadButton::at_start();
+        let mut button = KeypadButton::at_start();
 
-        button_location.follow_instruction(instruction);
+        button.follow_instruction(instruction);
 
-        assert_eq!(expected, button_location);
+        assert_eq!(expected, button);
     }
 
     #[rstest]
@@ -115,15 +115,15 @@ mod tests {
     #[case(KeypadButton { x: 0, y: -1 }, Instruction::Down)]
     #[case(KeypadButton { x: 1, y: 0 }, Instruction::Right)]
     #[case(KeypadButton { x: -1, y: 0 }, Instruction::Left)]
-    fn button_location_trait_button_follow_instruction_test_out_of_bounds(
+    fn keypad_button_trait_button_follow_instruction_test_out_of_bounds(
         #[case] expected: KeypadButton,
         #[case] instruction: Instruction,
     ) {
-        let mut button_location = KeypadButton::at_start();
+        let mut button = KeypadButton::at_start();
 
-        button_location.follow_instruction(instruction);
-        button_location.follow_instruction(instruction);
+        button.follow_instruction(instruction);
+        button.follow_instruction(instruction);
 
-        assert_eq!(expected, button_location);
+        assert_eq!(expected, button);
     }
 }

@@ -22,15 +22,15 @@ pub struct InstructionParseError {
 pub struct CodeInstructions(pub Vec<Instruction>);
 
 impl CodeInstructions {
-    pub fn solve_code_number<B>(&self, button_location: &mut B) -> ButtonNumber
+    pub fn solve_code_number<B>(&self, button: &mut B) -> ButtonNumber
     where
         B: Button,
     {
         let Self(instructions) = self;
         for instruction in instructions {
-            button_location.follow_instruction(*instruction);
+            button.follow_instruction(*instruction);
         }
-        button_location.button_number()
+        button.button_number()
     }
 }
 
@@ -89,7 +89,7 @@ mod tests {
 
     #[test]
     fn code_instructions_solve_code_number_test_in_bounds() {
-        let mut button_location = normal_keypad::KeypadButton::at_start();
+        let mut button = normal_keypad::KeypadButton::at_start();
         let code_instructions = CodeInstructions(vec![
             Instruction::Up,
             Instruction::Down,
@@ -97,15 +97,15 @@ mod tests {
             Instruction::Left,
         ]);
 
-        let returned = code_instructions.solve_code_number(&mut button_location);
+        let returned = code_instructions.solve_code_number(&mut button);
 
         assert_eq!(ButtonNumber('5'), returned);
-        assert_eq!(normal_keypad::KeypadButton::at_start(), button_location);
+        assert_eq!(normal_keypad::KeypadButton::at_start(), button);
     }
 
     #[test]
     fn code_instructions_solve_code_number_test_out_of_bounds() {
-        let mut button_location = normal_keypad::KeypadButton::at_start();
+        let mut button = normal_keypad::KeypadButton::at_start();
         let code_instructions = CodeInstructions(vec![
             Instruction::Up,
             Instruction::Up,
@@ -113,13 +113,10 @@ mod tests {
             Instruction::Left,
         ]);
 
-        let returned = code_instructions.solve_code_number(&mut button_location);
+        let returned = code_instructions.solve_code_number(&mut button);
 
         assert_eq!(ButtonNumber('1'), returned);
-        assert_eq!(
-            normal_keypad::KeypadButton::inside_bounds(-1, 1),
-            button_location
-        );
+        assert_eq!(normal_keypad::KeypadButton::inside_bounds(-1, 1), button);
     }
 
     #[test]
