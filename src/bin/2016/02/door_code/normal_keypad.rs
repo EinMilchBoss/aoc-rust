@@ -14,7 +14,7 @@ impl KeypadButton {
         Self { x: 0, y: 0 }
     }
 
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn inside_bounds(x: i8, y: i8) -> Self {
         Self {
             x: Self::set_inside_bounds(x, 0),
