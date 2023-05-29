@@ -1,8 +1,8 @@
-use crate::code_solver::{ButtonLocation, ButtonNumber};
-
 use std::str::FromStr;
 
 use snafu::prelude::*;
+
+use crate::door_code::{Button, ButtonNumber};
 
 #[derive(Debug, PartialEq, Snafu)]
 #[snafu(display("String could not be parsed into `CodeInstructions` because of char '{}' at index {}.", source.invalid_char, invalid_char_index))]
@@ -22,10 +22,13 @@ pub struct InstructionParseError {
 pub struct CodeInstructions(pub Vec<Instruction>);
 
 impl CodeInstructions {
-    pub fn solve_code_number(&self, button_location: &mut ButtonLocation) -> ButtonNumber {
+    pub fn solve_code_number<B>(&self, button_location: &mut B) -> ButtonNumber
+    where
+        B: Button,
+    {
         let Self(instructions) = self;
         for instruction in instructions {
-            button_location.go_relative(*instruction);
+            button_location.follow_instruction(*instruction);
         }
         button_location.button_number()
     }
@@ -78,14 +81,15 @@ impl TryFrom<char> for Instruction {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     use pretty_assertions::assert_eq;
     use rstest::rstest;
 
+    use super::*;
+    use crate::door_code::normal_keypad;
+
     #[test]
     fn code_instructions_solve_code_number_test_in_bounds() {
-        let mut button_location = ButtonLocation::at_start();
+        let mut button_location = normal_keypad::KeypadButton::at_start();
         let code_instructions = CodeInstructions(vec![
             Instruction::Up,
             Instruction::Down,
@@ -95,13 +99,13 @@ mod tests {
 
         let returned = code_instructions.solve_code_number(&mut button_location);
 
-        assert_eq!(ButtonNumber(5), returned);
-        assert_eq!(ButtonLocation { x: 0, y: 0 }, button_location);
+        assert_eq!(ButtonNumber('5'), returned);
+        assert_eq!(normal_keypad::KeypadButton::at_start(), button_location);
     }
 
     #[test]
     fn code_instructions_solve_code_number_test_out_of_bounds() {
-        let mut button_location = ButtonLocation::at_start();
+        let mut button_location = normal_keypad::KeypadButton::at_start();
         let code_instructions = CodeInstructions(vec![
             Instruction::Up,
             Instruction::Up,
@@ -111,8 +115,11 @@ mod tests {
 
         let returned = code_instructions.solve_code_number(&mut button_location);
 
-        assert_eq!(ButtonNumber(1), returned);
-        assert_eq!(ButtonLocation { x: -1, y: 1 }, button_location);
+        assert_eq!(ButtonNumber('1'), returned);
+        assert_eq!(
+            normal_keypad::KeypadButton::inside_bounds(-1, 1),
+            button_location
+        );
     }
 
     #[test]

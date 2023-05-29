@@ -1,9 +1,10 @@
-mod code_solver;
+mod door_code;
 mod instruction;
 
-use code_solver::{ButtonLocation, ButtonNumber};
-use instruction::{CodeInstructions, CodeInstructionsParseError};
 use util::std::*;
+
+use door_code::normal_keypad;
+use instruction::{CodeInstructions, CodeInstructionsParseError};
 
 fn main() {
     let input = read_file(InputFile::Actual, Year("2016"), Day("02"))
@@ -24,24 +25,19 @@ fn parse_input(input: &str) -> Vec<CodeInstructions> {
 }
 
 fn part_1(input: &[CodeInstructions]) -> String {
-    let mut button_numbers = Vec::new();
-    let mut button_location = ButtonLocation::at_start();
-    for code_instruction in input {
-        let ButtonNumber(code_number) = code_instruction.solve_code_number(&mut button_location);
-        button_numbers.push(
-            char::from_digit(code_number.into(), 10)
-                .expect("A `ButtonNumber` could not be parsed into a `char`."),
-        );
-    }
-    button_numbers.into_iter().collect()
+    let mut button_location = normal_keypad::KeypadButton::at_start();
+    input
+        .iter()
+        .map(|code_instructions| code_instructions.solve_code_number(&mut button_location).0)
+        .collect()
 }
 
 #[cfg(test)]
 mod tests {
+    use rstest::{fixture, rstest};
+
     use super::*;
     use crate::instruction::Instruction;
-
-    use rstest::{fixture, rstest};
 
     #[fixture]
     fn input_lines() -> Vec<String> {
