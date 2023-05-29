@@ -48,13 +48,13 @@ mod tests {
     fn parse_input_test_ok(input_lines: Vec<String>) {
         let input = input_lines.join("\n");
         let expected = vec![
-            CodeInstructions(vec![
+            CodeInstructions::new(vec![
                 Instruction::Up,
                 Instruction::Down,
                 Instruction::Right,
                 Instruction::Left,
             ]),
-            CodeInstructions(vec![
+            CodeInstructions::new(vec![
                 Instruction::Left,
                 Instruction::Right,
                 Instruction::Down,
@@ -76,22 +76,22 @@ mod tests {
     #[fixture]
     fn aoc_test_input() -> Vec<CodeInstructions> {
         vec![
-            CodeInstructions(vec![Instruction::Up, Instruction::Left, Instruction::Left]),
-            CodeInstructions(vec![
+            CodeInstructions::new(vec![Instruction::Up, Instruction::Left, Instruction::Left]),
+            CodeInstructions::new(vec![
                 Instruction::Right,
                 Instruction::Right,
                 Instruction::Down,
                 Instruction::Down,
                 Instruction::Down,
             ]),
-            CodeInstructions(vec![
+            CodeInstructions::new(vec![
                 Instruction::Left,
                 Instruction::Up,
                 Instruction::Right,
                 Instruction::Down,
                 Instruction::Left,
             ]),
-            CodeInstructions(vec![
+            CodeInstructions::new(vec![
                 Instruction::Up,
                 Instruction::Up,
                 Instruction::Up,

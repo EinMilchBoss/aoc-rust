@@ -19,9 +19,14 @@ pub struct InstructionParseError {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct CodeInstructions(pub Vec<Instruction>);
+pub struct CodeInstructions(Vec<Instruction>);
 
 impl CodeInstructions {
+    #[cfg(test)]
+    pub fn new(instructions: Vec<Instruction>) -> Self {
+        Self(instructions)
+    }
+
     pub fn solve_code_number<B>(&self, button: &mut B) -> ButtonNumber
     where
         B: Button,
@@ -88,6 +93,14 @@ mod tests {
     use crate::door_code::normal_keypad;
 
     #[test]
+    fn code_instructions_new_test() {
+        let input = vec![Instruction::Up, Instruction::Down];
+        let expected = CodeInstructions(input.clone());
+
+        assert_eq!(expected, CodeInstructions::new(input));
+    }
+
+    #[test]
     fn code_instructions_solve_code_number_test_in_bounds() {
         let mut button = normal_keypad::KeypadButton::at_start();
         let code_instructions = CodeInstructions(vec![
@@ -116,7 +129,7 @@ mod tests {
         let returned = code_instructions.solve_code_number(&mut button);
 
         assert_eq!(ButtonNumber('1'), returned);
-        assert_eq!(normal_keypad::KeypadButton::inside_bounds(-1, 1), button);
+        assert_eq!(normal_keypad::KeypadButton::new(-1, 1), button);
     }
 
     #[test]

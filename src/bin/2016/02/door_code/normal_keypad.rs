@@ -15,11 +15,8 @@ impl KeypadButton {
     }
 
     #[cfg(test)]
-    pub fn inside_bounds(x: i8, y: i8) -> Self {
-        Self {
-            x: Self::set_inside_bounds(x, 0),
-            y: Self::set_inside_bounds(y, 0),
-        }
+    pub fn new(x: i8, y: i8) -> Self {
+        Self { x, y }
     }
 
     fn set_inside_bounds(position: i8, offset: i8) -> i8 {
@@ -63,11 +60,8 @@ mod tests {
     }
 
     #[test]
-    fn keypad_button_inside_bounds_test() {
-        assert_eq!(
-            KeypadButton { x: 1, y: -1 },
-            KeypadButton::inside_bounds(10, -10)
-        );
+    fn keypad_button_new_test() {
+        assert_eq!(KeypadButton { x: 1, y: -1 }, KeypadButton::new(1, -1));
     }
 
     #[rstest]
