@@ -3,7 +3,7 @@ mod instruction;
 
 use util::std::*;
 
-use door_code::normal_keypad;
+use door_code::{diffuse_keypad, normal_keypad};
 use instruction::{CodeInstructions, CodeInstructionsParseError};
 
 fn main() {
@@ -12,6 +12,7 @@ fn main() {
     let input = parse_input(&input);
 
     println!("Part 1: {}", part_1(&input));
+    println!("Part 2: {}", part_2(&input));
 }
 
 fn parse_input(input: &str) -> Vec<CodeInstructions> {
@@ -26,6 +27,14 @@ fn parse_input(input: &str) -> Vec<CodeInstructions> {
 
 fn part_1(input: &[CodeInstructions]) -> String {
     let mut button = normal_keypad::KeypadButton::at_start();
+    input
+        .iter()
+        .map(|code_instructions| code_instructions.solve_code_number(&mut button).0)
+        .collect()
+}
+
+fn part_2(input: &[CodeInstructions]) -> String {
+    let mut button = diffuse_keypad::KeypadButton::at_start();
     input
         .iter()
         .map(|code_instructions| code_instructions.solve_code_number(&mut button).0)
@@ -104,5 +113,10 @@ mod tests {
     #[rstest]
     fn part_1_test(aoc_test_input: Vec<CodeInstructions>) {
         assert_eq!(String::from("1985"), part_1(&aoc_test_input));
+    }
+
+    #[rstest]
+    fn part_2_test(aoc_test_input: Vec<CodeInstructions>) {
+        assert_eq!(String::from("5DB3"), part_2(&aoc_test_input));
     }
 }

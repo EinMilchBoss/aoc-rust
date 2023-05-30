@@ -1,7 +1,19 @@
+use std::collections::HashMap;
+
 use super::{Button, ButtonLocation, ButtonNumber};
 use crate::instruction::Instruction;
 
-static BUTTON_LAYOUT: [[char; 3]; 3] = [['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']];
+static KEYPAD_LAYOUT: [(ButtonLocation, ButtonNumber); 9] = [
+    (ButtonLocation::at(-1, 1), ButtonNumber('1')),
+    (ButtonLocation::at(0, 1), ButtonNumber('2')),
+    (ButtonLocation::at(1, 1), ButtonNumber('3')),
+    (ButtonLocation::at(-1, 0), ButtonNumber('4')),
+    (ButtonLocation::at(0, 0), ButtonNumber('5')),
+    (ButtonLocation::at(1, 0), ButtonNumber('6')),
+    (ButtonLocation::at(-1, -1), ButtonNumber('7')),
+    (ButtonLocation::at(0, -1), ButtonNumber('8')),
+    (ButtonLocation::at(1, -1), ButtonNumber('9')),
+];
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct KeypadButton {
@@ -21,28 +33,19 @@ impl KeypadButton {
             location: ButtonLocation::at(x, y),
         }
     }
-
-    fn trim_to_bounds(&mut self) {
-        match &mut self.location {
-            ButtonLocation { x, .. } if *x > 1 => *x = 1,
-            ButtonLocation { x, .. } if *x < -1 => *x = -1,
-            ButtonLocation { y, .. } if *y > 1 => *y = 1,
-            ButtonLocation { y, .. } if *y < -1 => *y = -1,
-            _ => (),
-        }
-    }
 }
 
 impl Button for KeypadButton {
     fn button_number(&self) -> ButtonNumber {
-        let y_index = (self.location.y + 1) as usize;
-        let x_index = (self.location.x + 1) as usize;
-        ButtonNumber(BUTTON_LAYOUT[y_index][x_index])
+        self.location.button_number(HashMap::from(KEYPAD_LAYOUT))
     }
 
     fn follow_instruction(&mut self, instruction: Instruction) {
+        let prior_location = self.location;
         self.location += instruction.button_position_offset();
-        self.trim_to_bounds();
+        if !super::is_in_3_times_3_grid(self.location) {
+            self.location = prior_location;
+        }
     }
 }
 
@@ -70,20 +73,6 @@ mod tests {
             },
             KeypadButton::at_location(1, -1)
         );
-    }
-
-    #[rstest]
-    #[case(KeypadButton::at_location(0, 1), KeypadButton::at_location(0, 2))]
-    #[case(KeypadButton::at_location(0, -1), KeypadButton::at_location(0, -2))]
-    #[case(KeypadButton::at_location(1, 0), KeypadButton::at_location(2, 0))]
-    #[case(KeypadButton::at_location(-1, 0), KeypadButton::at_location(-2, 0))]
-    fn keypad_button_trim_to_bounds_test(
-        #[case] expected: KeypadButton,
-        #[case] mut button: KeypadButton,
-    ) {
-        button.trim_to_bounds();
-
-        assert_eq!(expected, button);
     }
 
     #[rstest]
