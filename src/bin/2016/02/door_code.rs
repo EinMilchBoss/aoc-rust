@@ -1,7 +1,7 @@
 pub mod diffuse_keypad;
 pub mod normal_keypad;
 
-use std::{collections::HashMap, ops::AddAssign};
+use std::{collections::HashMap, ops::Add};
 
 use crate::instruction::Instruction;
 
@@ -29,10 +29,24 @@ impl ButtonLocation {
     }
 }
 
-impl AddAssign for ButtonLocation {
-    fn add_assign(&mut self, rhs: Self) {
-        self.x += rhs.x;
-        self.y += rhs.y;
+impl Add for ButtonLocation {
+    type Output = ButtonLocation;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::Output::at(self.x + rhs.x, self.y + rhs.y)
+    }
+}
+
+fn follow_instruction(
+    location: ButtonLocation,
+    instruction: Instruction,
+    is_in_bounds: impl FnOnce(ButtonLocation) -> bool,
+) -> ButtonLocation {
+    let new_location = location + instruction.button_position_offset();
+    if is_in_bounds(new_location) {
+        new_location
+    } else {
+        location
     }
 }
 
@@ -82,13 +96,38 @@ mod tests {
     #[case(ButtonLocation::at(0, -2), ButtonLocation::at(0, -1))]
     #[case(ButtonLocation::at(2, 0), ButtonLocation::at(1, 0))]
     #[case(ButtonLocation::at(-2, 0), ButtonLocation::at(-1, 0))]
-    fn button_location_trait_add_assign_test(
+    fn button_location_trait_add_test(
         #[case] expected: ButtonLocation,
-        #[case] mut summand: ButtonLocation,
+        #[case] summand: ButtonLocation,
     ) {
-        summand += summand;
+        let sum = summand + summand;
 
-        assert_eq!(expected, summand);
+        assert_eq!(expected, sum);
+    }
+
+    #[rstest]
+    #[case(ButtonLocation::at(0, 1), Instruction::Up)]
+    #[case(ButtonLocation::at(0, -1), Instruction::Down)]
+    #[case(ButtonLocation::at(1, 0), Instruction::Right)]
+    #[case(ButtonLocation::at(-1, 0), Instruction::Left)]
+    fn follow_instruction_test_is_in_bounds(
+        #[case] expected: ButtonLocation,
+        #[case] instruction: Instruction,
+    ) {
+        let actual = follow_instruction(ButtonLocation::default(), instruction, |location| true);
+
+        assert_eq!(expected, actual);
+    }
+
+    #[rstest]
+    #[case(Instruction::Up)]
+    #[case(Instruction::Down)]
+    #[case(Instruction::Right)]
+    #[case(Instruction::Left)]
+    fn follow_instruction_test_is_out_of_bounds(#[case] instruction: Instruction) {
+        let actual = follow_instruction(ButtonLocation::default(), instruction, |location| false);
+
+        assert_eq!(ButtonLocation::default(), actual);
     }
 
     #[rstest]

@@ -39,14 +39,14 @@ impl KeypadButton {
         }
     }
 
-    fn is_in_bounds(&self) -> bool {
-        self.is_corner() || super::is_in_3_times_3_grid(self.location)
+    fn is_in_bounds(location: ButtonLocation) -> bool {
+        Self::is_corner(location) || super::is_in_3_times_3_grid(location)
     }
 
-    fn is_corner(&self) -> bool {
+    fn is_corner(location: ButtonLocation) -> bool {
         let corner_range = [-2, 2];
-        let is_x_dimension_corner = corner_range.contains(&self.location.x) && self.location.y == 0;
-        let is_y_dimension_corner = corner_range.contains(&self.location.y) && self.location.x == 0;
+        let is_x_dimension_corner = corner_range.contains(&location.x) && location.y == 0;
+        let is_y_dimension_corner = corner_range.contains(&location.y) && location.x == 0;
         is_x_dimension_corner || is_y_dimension_corner
     }
 }
@@ -57,11 +57,9 @@ impl Button for KeypadButton {
     }
 
     fn follow_instruction(&mut self, instruction: Instruction) {
-        let prior_location = self.location;
-        self.location += instruction.button_position_offset();
-        if !self.is_in_bounds() {
-            self.location = prior_location;
-        }
+        self.location = super::follow_instruction(self.location, instruction, |location| {
+            Self::is_in_bounds(location)
+        });
     }
 }
 
@@ -93,47 +91,98 @@ mod tests {
     }
 
     #[rstest]
-    #[case(KeypadButton::at_location(0, 2))]
-    #[case(KeypadButton::at_location(0, -2))]
-    #[case(KeypadButton::at_location(2, 0))]
-    #[case(KeypadButton::at_location(-2, 0))]
-    #[case(KeypadButton::at_location(0, 0))]
-    #[case(KeypadButton::at_location(0, 1))]
-    #[case(KeypadButton::at_location(0, -1))]
-    #[case(KeypadButton::at_location(1, 0))]
-    #[case(KeypadButton::at_location(-1, 0))]
-    #[case(KeypadButton::at_location(1, 1))]
-    #[case(KeypadButton::at_location(-1, -1))]
-    fn keypad_button_is_in_bounds_test_true(#[case] button: KeypadButton) {
-        assert!(button.is_in_bounds());
+    #[case(ButtonLocation::at(0, 2))]
+    #[case(ButtonLocation::at(0, -2))]
+    #[case(ButtonLocation::at(2, 0))]
+    #[case(ButtonLocation::at(-2, 0))]
+    #[case(ButtonLocation::at(0, 0))]
+    #[case(ButtonLocation::at(0, 1))]
+    #[case(ButtonLocation::at(0, -1))]
+    #[case(ButtonLocation::at(1, 0))]
+    #[case(ButtonLocation::at(-1, 0))]
+    #[case(ButtonLocation::at(1, 1))]
+    #[case(ButtonLocation::at(-1, -1))]
+    fn keypad_button_is_in_bounds_test_true(#[case] location: ButtonLocation) {
+        assert!(KeypadButton::is_in_bounds(location));
     }
 
     #[rstest]
-    #[case(KeypadButton::at_location(1, 2))]
-    #[case(KeypadButton::at_location(-1, -2))]
-    #[case(KeypadButton::at_location(2, 1))]
-    #[case(KeypadButton::at_location(-2, -1))]
-    fn keypad_button_is_in_bounds_test_false(#[case] button: KeypadButton) {
-        assert!(!button.is_in_bounds());
+    #[case(ButtonLocation::at(1, 2))]
+    #[case(ButtonLocation::at(-1, -2))]
+    #[case(ButtonLocation::at(2, 1))]
+    #[case(ButtonLocation::at(-2, -1))]
+    fn keypad_button_is_in_bounds_test_false(#[case] location: ButtonLocation) {
+        assert!(!KeypadButton::is_in_bounds(location));
     }
 
     #[rstest]
-    #[case(KeypadButton::at_location(0, 2))]
-    #[case(KeypadButton::at_location(0, -2))]
-    #[case(KeypadButton::at_location(2, 0))]
-    #[case(KeypadButton::at_location(-2, 0))]
-    fn keypad_button_is_corner_test_true(#[case] button: KeypadButton) {
-        assert!(button.is_corner());
+    #[case(ButtonLocation::at(0, 2))]
+    #[case(ButtonLocation::at(0, -2))]
+    #[case(ButtonLocation::at(2, 0))]
+    #[case(ButtonLocation::at(-2, 0))]
+    fn keypad_button_is_corner_test_true(#[case] location: ButtonLocation) {
+        assert!(KeypadButton::is_corner(location));
     }
 
     #[rstest]
-    #[case(KeypadButton::at_location(0, 0))]
-    #[case(KeypadButton::at_location(1, 2))]
-    #[case(KeypadButton::at_location(-1, -2))]
-    #[case(KeypadButton::at_location(2, 1))]
-    #[case(KeypadButton::at_location(-2, -1))]
-    fn keypad_button_is_corner_test_false(#[case] button: KeypadButton) {
-        assert!(!button.is_corner());
+    #[case(ButtonLocation::at(0, 0))]
+    #[case(ButtonLocation::at(1, 2))]
+    #[case(ButtonLocation::at(-1, -2))]
+    #[case(ButtonLocation::at(2, 1))]
+    #[case(ButtonLocation::at(-2, -1))]
+    fn keypad_button_is_corner_test_false(#[case] location: ButtonLocation) {
+        assert!(!KeypadButton::is_corner(location));
+    }
+
+    #[rstest]
+    #[case(KeypadButton::at_location(0, 1), Instruction::Up)]
+    #[case(KeypadButton::at_location(0, -1), Instruction::Down)]
+    #[case(KeypadButton::at_location(1, 0), Instruction::Right)]
+    #[case(KeypadButton::at_location(-1, 0), Instruction::Left)]
+    fn keypad_button_trait_button_follow_instruction_test_in_bounds(
+        #[case] expected: KeypadButton,
+        #[case] instruction: Instruction,
+    ) {
+        let mut button = KeypadButton::at_location(0, 0);
+
+        button.follow_instruction(instruction);
+
+        assert_eq!(expected, button);
+    }
+
+    #[rstest]
+    #[case(KeypadButton::at_location(0, 2), Instruction::Up)]
+    #[case(KeypadButton::at_location(0, -2), Instruction::Down)]
+    #[case(KeypadButton::at_location(2, 0), Instruction::Right)]
+    #[case(KeypadButton::at_location(-2, 0), Instruction::Left)]
+    fn keypad_button_trait_button_follow_instruction_test_corners(
+        #[case] expected: KeypadButton,
+        #[case] instruction: Instruction,
+    ) {
+        let mut button = KeypadButton::at_location(0, 0);
+
+        button.follow_instruction(instruction);
+        button.follow_instruction(instruction);
+
+        assert_eq!(expected, button);
+    }
+
+    #[rstest]
+    #[case(KeypadButton::at_location(0, 2), Instruction::Up)]
+    #[case(KeypadButton::at_location(0, -2), Instruction::Down)]
+    #[case(KeypadButton::at_location(2, 0), Instruction::Right)]
+    #[case(KeypadButton::at_location(-2, 0), Instruction::Left)]
+    fn keypad_button_trait_button_follow_instruction_test_out_of_bounds(
+        #[case] expected: KeypadButton,
+        #[case] instruction: Instruction,
+    ) {
+        let mut button = KeypadButton::at_location(0, 0);
+
+        button.follow_instruction(instruction);
+        button.follow_instruction(instruction);
+        button.follow_instruction(instruction);
+
+        assert_eq!(expected, button);
     }
 
     #[rstest]

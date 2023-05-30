@@ -27,10 +27,7 @@ impl CodeInstructions {
         Self(instructions)
     }
 
-    pub fn solve_code_number<B>(&self, button: &mut B) -> ButtonNumber
-    where
-        B: Button,
-    {
+    pub fn solve_code_number(&self, button: &mut impl Button) -> ButtonNumber {
         let Self(instructions) = self;
         for instruction in instructions {
             button.follow_instruction(*instruction);

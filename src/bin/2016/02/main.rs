@@ -3,7 +3,7 @@ mod instruction;
 
 use util::std::*;
 
-use door_code::{diffuse_keypad, normal_keypad};
+use door_code::{diffuse_keypad, normal_keypad, Button};
 use instruction::{CodeInstructions, CodeInstructionsParseError};
 
 fn main() {
@@ -26,15 +26,14 @@ fn parse_input(input: &str) -> Vec<CodeInstructions> {
 }
 
 fn part_1(input: &[CodeInstructions]) -> String {
-    let mut button = normal_keypad::KeypadButton::at_start();
-    input
-        .iter()
-        .map(|code_instructions| code_instructions.solve_code_number(&mut button).0)
-        .collect()
+    solve(input, normal_keypad::KeypadButton::at_start())
 }
 
 fn part_2(input: &[CodeInstructions]) -> String {
-    let mut button = diffuse_keypad::KeypadButton::at_start();
+    solve(input, diffuse_keypad::KeypadButton::at_start())
+}
+
+fn solve(input: &[CodeInstructions], mut button: impl Button) -> String {
     input
         .iter()
         .map(|code_instructions| code_instructions.solve_code_number(&mut button).0)

@@ -41,11 +41,9 @@ impl Button for KeypadButton {
     }
 
     fn follow_instruction(&mut self, instruction: Instruction) {
-        let prior_location = self.location;
-        self.location += instruction.button_position_offset();
-        if !super::is_in_3_times_3_grid(self.location) {
-            self.location = prior_location;
-        }
+        self.location = super::follow_instruction(self.location, instruction, |location| {
+            super::is_in_3_times_3_grid(location)
+        });
     }
 }
 
