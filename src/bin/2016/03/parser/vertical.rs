@@ -3,46 +3,42 @@ use itertools::Itertools;
 use crate::triangle::TriangleCollection;
 
 pub fn parse_input_vertical(input: &str) -> TriangleCollection {
-    // lines() -> chunks(3)
-
     input
         .lines()
         .chunks(3)
         .into_iter()
         .flat_map(|lines| {
-            let sides: Vec<_> = lines.map(parse_sides).collect();
-            let mut triangles = [(0, 0, 0); 3];
-            if let &[a1, a2, a3] = sides[0].as_slice() {
-                triangles[0].0 = a1;
-                triangles[1].0 = a2;
-                triangles[2].0 = a3;
-            }
-            if let &[b1, b2, b3] = sides[1].as_slice() {
-                triangles[0].1 = b1;
-                triangles[1].1 = b2;
-                triangles[2].1 = b3;
-            }
-            if let &[c1, c2, c3] = sides[2].as_slice() {
-                triangles[0].2 = c1;
-                triangles[1].2 = c2;
-                triangles[2].2 = c3;
-            }
-            triangles
+            let triangles_sides: [_; 3] = lines
+                .map(super::parse_sides)
+                .collect::<Vec<_>>()
+                .try_into()
+                .unwrap_or_else(|_| panic!("Amount of lines is not divisible by 3."));
+
+            rotate_sides_of_triangles(triangles_sides)
         })
         .collect()
 }
 
-fn parse_sides(line: &str) -> Vec<usize> {
-    [&line[2..=4], &line[7..=9], &line[12..]]
-        .into_iter()
-        .map(parse_side)
-        .collect()
-}
-
-fn parse_side(side: &str) -> usize {
-    String::from(side.trim())
-        .parse()
-        .unwrap_or_else(|_| panic!("Could not parse string \"{}\".", side))
+fn rotate_sides_of_triangles(
+    sides_of_triangles: [(usize, usize, usize); 3],
+) -> [(usize, usize, usize); 3] {
+    [
+        (
+            sides_of_triangles[0].0,
+            sides_of_triangles[1].0,
+            sides_of_triangles[2].0,
+        ),
+        (
+            sides_of_triangles[0].1,
+            sides_of_triangles[1].1,
+            sides_of_triangles[2].1,
+        ),
+        (
+            sides_of_triangles[0].2,
+            sides_of_triangles[1].2,
+            sides_of_triangles[2].2,
+        ),
+    ]
 }
 
 #[cfg(test)]
