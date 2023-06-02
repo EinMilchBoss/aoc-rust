@@ -114,7 +114,7 @@ mod tests {
         #[case] expected: ButtonLocation,
         #[case] instruction: Instruction,
     ) {
-        let actual = follow_instruction(ButtonLocation::default(), instruction, |location| true);
+        let actual = follow_instruction(ButtonLocation::default(), instruction, |_| true);
 
         assert_eq!(expected, actual);
     }
@@ -125,7 +125,7 @@ mod tests {
     #[case(Instruction::Right)]
     #[case(Instruction::Left)]
     fn follow_instruction_test_is_out_of_bounds(#[case] instruction: Instruction) {
-        let actual = follow_instruction(ButtonLocation::default(), instruction, |location| false);
+        let actual = follow_instruction(ButtonLocation::default(), instruction, |_| false);
 
         assert_eq!(ButtonLocation::default(), actual);
     }

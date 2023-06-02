@@ -41,9 +41,8 @@ impl Button for KeypadButton {
     }
 
     fn follow_instruction(&mut self, instruction: Instruction) {
-        self.location = super::follow_instruction(self.location, instruction, |location| {
-            super::is_in_3_times_3_grid(location)
-        });
+        self.location =
+            super::follow_instruction(self.location, instruction, super::is_in_3_times_3_grid);
     }
 }
 

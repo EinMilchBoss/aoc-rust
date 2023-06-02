@@ -57,9 +57,7 @@ impl Button for KeypadButton {
     }
 
     fn follow_instruction(&mut self, instruction: Instruction) {
-        self.location = super::follow_instruction(self.location, instruction, |location| {
-            Self::is_in_bounds(location)
-        });
+        self.location = super::follow_instruction(self.location, instruction, Self::is_in_bounds);
     }
 }
 
