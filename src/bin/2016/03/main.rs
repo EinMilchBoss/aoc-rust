@@ -3,14 +3,15 @@ mod triangle;
 
 use util::std::*;
 
-use crate::parser::parse_input_horizontal;
+use parser::parse_input_horizontal;
+use parser::parse_input_vertical;
 
 fn main() {
     let input = read_file(InputFile::Actual, Year("2016"), Day("03"))
         .expect("Input file could not be read.");
 
     println!("Part 1: {}", part_1(&input));
-    // println!("Part 2: {}", part_2(&input));
+    println!("Part 2: {}", part_2(&input));
 }
 
 fn part_1(input: &str) -> usize {
@@ -21,7 +22,10 @@ fn part_1(input: &str) -> usize {
 }
 
 fn part_2(input: &str) -> usize {
-    todo!()
+    parse_input_vertical(input)
+        .iter()
+        .filter(|triangle| triangle.is_valid())
+        .count()
 }
 
 #[cfg(test)]
@@ -39,5 +43,10 @@ mod tests {
     #[rstest]
     fn part_1_test(raw_input: String) {
         assert_eq!(1, part_1(&raw_input));
+    }
+
+    #[rstest]
+    fn part_2_test(raw_input: String) {
+        assert_eq!(1, part_2(&raw_input));
     }
 }
