@@ -8,37 +8,31 @@ pub fn parse_input_vertical(input: &str) -> TriangleCollection {
         .chunks(3)
         .into_iter()
         .flat_map(|lines| {
-            let triangles_sides: [_; 3] = lines
+            let sides_of_triangles: [_; 3] = lines
                 .map(super::parse_sides)
                 .collect::<Vec<_>>()
                 .try_into()
                 .unwrap_or_else(|_| panic!("Amount of lines is not divisible by 3."));
 
-            rotate_sides_of_triangles(triangles_sides)
+            rows_to_columns(sides_of_triangles)
         })
         .collect()
 }
 
-fn rotate_sides_of_triangles(
-    sides_of_triangles: [(usize, usize, usize); 3],
-) -> [(usize, usize, usize); 3] {
-    [
-        (
-            sides_of_triangles[0].0,
-            sides_of_triangles[1].0,
-            sides_of_triangles[2].0,
-        ),
-        (
-            sides_of_triangles[0].1,
-            sides_of_triangles[1].1,
-            sides_of_triangles[2].1,
-        ),
-        (
-            sides_of_triangles[0].2,
-            sides_of_triangles[1].2,
-            sides_of_triangles[2].2,
-        ),
-    ]
+fn rows_to_columns(rows: [[usize; 3]; 3]) -> [[usize; 3]; 3] {
+    let mut columns = [[0; 3]; 3];
+    for (column_index, column) in columns.iter_mut().enumerate() {
+        *column = sides_of_column(rows, column_index);
+    }
+    columns
+}
+
+fn sides_of_column(rows: [[usize; 3]; 3], column_index: usize) -> [usize; 3] {
+    let mut column = [0; 3];
+    for (index, row) in rows.into_iter().enumerate() {
+        column[index] = row[column_index];
+    }
+    column
 }
 
 #[cfg(test)]
