@@ -6,7 +6,7 @@ use crate::instruction::{RegisterId, Word};
 pub struct Registers(HashMap<RegisterId, Word>);
 
 impl Registers {
-    fn init() -> Self {
+    pub fn new() -> Self {
         Self(HashMap::from([('a', 0), ('b', 0), ('c', 0), ('d', 0)]))
     }
 }

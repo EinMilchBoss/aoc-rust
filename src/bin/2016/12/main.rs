@@ -2,7 +2,7 @@ mod instruction;
 mod registers;
 mod runtime;
 
-use instruction::{Argument, RegisterId, Word};
+use instruction::{Argument, AssembunnyParseError, RegisterId, Word};
 use util::std::*;
 
 use crate::runtime::Runtime;
@@ -10,9 +10,15 @@ use crate::runtime::Runtime;
 fn main() {
     let input = read_file(InputFile::Actual, Year("2016"), Day("12"))
         .expect("Input file could not be read.");
-    // let runtime: Runtime = input.parse().unwrap();
-
-    // dbg!(runtime);
+    let assembunny = input.parse().unwrap_or_else(|error: AssembunnyParseError| {
+        panic!(
+            "{}. Verbose error description: {}",
+            error,
+            error.verbose_error_description()
+        )
+    });
+    let runtime: Runtime = Runtime::load_assembunny(assembunny);
+    dbg!(runtime);
 }
 
 #[cfg(test)]
