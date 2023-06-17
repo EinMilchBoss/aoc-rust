@@ -27,7 +27,7 @@ impl RuntimeEnvironment {
         self.registers.get(RegisterId::A)
     }
 
-    pub fn run_assembunny(&mut self) {
+    pub fn run_program(&mut self) {
         loop {
             if self.is_ip_past_last_instruction() {
                 break;
@@ -38,31 +38,38 @@ impl RuntimeEnvironment {
 
     fn execute(&mut self) {
         match *self.assembunny.get(self.ip).unwrap() {
-            Instruction::Cpy { from, into } => {
-                *self.registers.get_mut(into) = self.argument_value(from);
-                self.ip += 1;
-            }
-            Instruction::Inc(register_id) => {
-                self.registers.increment(register_id);
-                self.ip += 1;
-            }
-            Instruction::Dec(register_id) => {
-                self.registers.decrement(register_id);
-                self.ip += 1;
-            }
+            Instruction::Cpy { from, into } => self.execute_cpy_instruction(from, into),
+            Instruction::Inc(register_id) => self.execute_inc_instruction(register_id),
+            Instruction::Dec(register_id) => self.execute_dec_instruction(register_id),
             Instruction::Jnz {
                 condition,
                 jump_offset,
-            } => {
-                if self.argument_value(condition) != 0 {
-                    // 4 -5
-                    let ip = self.ip as isize;
-                    let jump_offset = jump_offset as isize;
-                    self.ip = ip.saturating_add(jump_offset) as usize;
-                } else {
-                    self.ip += 1
-                }
-            }
+            } => self.execute_jnz_instruction(condition, jump_offset),
+        }
+    }
+
+    fn execute_cpy_instruction(&mut self, from: Argument, into: RegisterId) {
+        *self.registers.get_mut(into) = self.argument_value(from);
+        self.ip += 1;
+    }
+
+    fn execute_inc_instruction(&mut self, register_id: RegisterId) {
+        self.registers.increment(register_id);
+        self.ip += 1;
+    }
+
+    fn execute_dec_instruction(&mut self, register_id: RegisterId) {
+        self.registers.decrement(register_id);
+        self.ip += 1;
+    }
+
+    fn execute_jnz_instruction(&mut self, condition: Argument, jump_offset: Word) {
+        if self.argument_value(condition) != 0 {
+            let ip = self.ip as isize;
+            let jump_offset = jump_offset as isize;
+            self.ip = ip.saturating_add(jump_offset) as usize;
+        } else {
+            self.ip += 1
         }
     }
 
@@ -83,9 +90,22 @@ impl RuntimeEnvironment {
 mod runtime_tests {
     use rstest::{fixture, rstest};
 
-    use crate::{instruction::*, registers};
+    use crate::instruction::*;
 
     use super::*;
+
+    fn run_program_test() {
+        let mut runtime_environment = RuntimeEnvironment::load_assembunny(Assembunny(vec![
+            Instruction::Inc(RegisterId::A),
+            Instruction::Inc(RegisterId::B),
+            Instruction::Inc(RegisterId::C),
+            Instruction::Inc(RegisterId::D),
+        ]));
+
+        runtime_environment.run_program();
+
+        assert_eq!(4, runtime_environment.ip);
+    }
 
     #[fixture]
     fn assembunny() -> Assembunny {
