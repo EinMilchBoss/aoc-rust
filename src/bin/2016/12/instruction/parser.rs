@@ -34,7 +34,7 @@ where
             char(' '),
             parse_argument,
             char(' '),
-            parse_argument,
+            parse_register_id,
         )),
         |(.., from, _, into)| Instruction::Cpy { from, into },
     )(input)
@@ -108,7 +108,8 @@ fn parse_register_id<'a, E>(input: &'a str) -> IResult<&'a str, RegisterId, E>
 where
     E: ParseError<&'a str>,
 {
-    alt((char('a'), char('b'), char('c'), char('d')))(input)
+    let (input, char) = alt((char('a'), char('b'), char('c'), char('d')))(input)?;
+    Ok((input, char.into()))
 }
 
 #[cfg(test)]
@@ -133,10 +134,10 @@ mod tests {
     }
 
     #[rstest]
-    #[case(Instruction::Cpy { from: Argument::Literal(1), into: Argument::Reference('a')}, "cpy 1 a")]
-    #[case(Instruction::Inc('d'), "inc d")]
-    #[case(Instruction::Dec('c'), "dec c")]
-    #[case(Instruction::Jnz { condition: Argument::Reference('b'), jump_offset: -2}, "jnz b -2")]
+    #[case(Instruction::Cpy { from: Argument::Literal(1), into: RegisterId::A}, "cpy 1 a")]
+    #[case(Instruction::Inc(RegisterId::D), "inc d")]
+    #[case(Instruction::Dec(RegisterId::C), "dec c")]
+    #[case(Instruction::Jnz { condition: Argument::Reference(RegisterId::B), jump_offset: -2}, "jnz b -2")]
     fn parse_instruction_test(#[case] expected: Instruction, #[case] input: &str) {
         let (remaining_input, actual) = unwrap_verbose(parse_instruction, input);
 
@@ -145,10 +146,10 @@ mod tests {
     }
 
     #[rstest]
-    #[case(Argument::Reference('a'), "a")]
-    #[case(Argument::Reference('b'), "b")]
-    #[case(Argument::Reference('c'), "c")]
-    #[case(Argument::Reference('d'), "d")]
+    #[case(Argument::Reference(RegisterId::A), "a")]
+    #[case(Argument::Reference(RegisterId::B), "b")]
+    #[case(Argument::Reference(RegisterId::C), "c")]
+    #[case(Argument::Reference(RegisterId::D), "d")]
     #[case(Argument::Literal(5), "5")]
     #[case(Argument::Literal(-5), "-5")]
     fn parse_argument_test(#[case] expected: Argument, #[case] input: &str) {
@@ -172,10 +173,10 @@ mod tests {
     }
 
     #[rstest]
-    #[case('a', "a")]
-    #[case('b', "b")]
-    #[case('c', "c")]
-    #[case('d', "d")]
+    #[case(RegisterId::A, "a")]
+    #[case(RegisterId::B, "b")]
+    #[case(RegisterId::C, "c")]
+    #[case(RegisterId::D, "d")]
     fn parse_register_id_test_valid_register_ids(
         #[case] expected: RegisterId,
         #[case] input: &str,

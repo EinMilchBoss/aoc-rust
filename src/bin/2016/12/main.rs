@@ -2,10 +2,10 @@ mod instruction;
 mod registers;
 mod runtime;
 
-use instruction::{Argument, AssembunnyParseError, RegisterId, Word};
+use instruction::{Assembunny, AssembunnyParseError, RegisterId, Word};
 use util::std::*;
 
-use crate::runtime::Runtime;
+use crate::runtime::RuntimeEnvironment;
 
 fn main() {
     let input = read_file(InputFile::Actual, Year("2016"), Day("12"))
@@ -15,38 +15,65 @@ fn main() {
             "{}. Verbose error description: {}",
             error,
             error.verbose_error_description()
-        )
+        );
     });
-    let runtime: Runtime = Runtime::load_assembunny(assembunny);
-    dbg!(runtime);
+
+    println!("Part 1: {}", part_1(&assembunny));
+    println!("Part 2: {}", part_2(&assembunny));
+}
+
+fn part_1(assembunny: &Assembunny) -> Word {
+    // execute instruction of the ip
+    // - manipulate ip to the next instruction
+    // -
+    let mut runtime_environment = RuntimeEnvironment::load_assembunny(assembunny.clone());
+    runtime_environment.run_assembunny();
+    runtime_environment.register_a()
+}
+
+fn part_2(assembunny: &Assembunny) -> Word {
+    // execute instruction of the ip
+    // - manipulate ip to the next instruction
+    // -
+    let mut runtime_environment = RuntimeEnvironment::load_assembunny(assembunny.clone());
+    *runtime_environment.register_mut(RegisterId::C) = 1;
+    runtime_environment.run_assembunny();
+    runtime_environment.register_a()
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::instruction::Instruction;
+    use rstest::{fixture, rstest};
+
+    use crate::instruction::*;
 
     use super::*;
 
-    // #[test]
-    // fn parse_runtime_test() {
-    //     let input = ["cpy 10 a", "inc b", "dec c", "jnz d -1"].join("\n");
-    //     let expected = Runtime {
-    //         instructions: vec![
-    //             Instruction::Cpy {
-    //                 from: Argument::Literal(10),
-    //                 into: Argument::Reference('a'),
-    //             },
-    //             Instruction::Inc('b'),
-    //             Instruction::Dec('c'),
-    //             Instruction::Jnz {
-    //                 condition: Argument::Reference('d'),
-    //                 jump_offset: -1,
-    //             },
-    //         ],
-    //         registers: Registers(HashMap::from([('a', 0), ('b', 0), ('c', 0), ('d', 0)])),
-    //         ip: 0,
-    //     };
+    #[fixture]
+    fn aoc_assembunny() -> Assembunny {
+        Assembunny(vec![
+            Instruction::Cpy {
+                from: Argument::Literal(41),
+                into: RegisterId::A,
+            },
+            Instruction::Inc(RegisterId::A),
+            Instruction::Inc(RegisterId::A),
+            Instruction::Dec(RegisterId::A),
+            Instruction::Jnz {
+                condition: Argument::Reference(RegisterId::A),
+                jump_offset: 2,
+            },
+            Instruction::Dec(RegisterId::A),
+        ])
+    }
 
-    //     assert_eq!(expected, input.parse().unwrap());
-    // }
+    #[rstest]
+    fn part_1_test(aoc_assembunny: Assembunny) {
+        assert_eq!(42, part_1(&aoc_assembunny));
+    }
+
+    #[rstest]
+    fn part_2_test(aoc_assembunny: Assembunny) {
+        assert_eq!(42, part_2(&aoc_assembunny));
+    }
 }

@@ -8,17 +8,18 @@ use std::{ops::Deref, str::FromStr};
 use nom::Finish;
 use snafu::prelude::*;
 
+use self::error::AssembunnyParseSnafu;
+
 pub type Word = i32;
-pub type RegisterId = char;
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Assembunny(Vec<Instruction>);
+pub struct Assembunny(pub Vec<Instruction>);
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Instruction {
     Cpy {
         from: Argument,
-        into: Argument,
+        into: RegisterId,
     },
     Inc(RegisterId),
     Dec(RegisterId),
@@ -32,6 +33,14 @@ pub enum Instruction {
 pub enum Argument {
     Literal(Word),
     Reference(RegisterId),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum RegisterId {
+    A,
+    B,
+    C,
+    D,
 }
 
 impl Deref for Assembunny {
@@ -48,7 +57,7 @@ impl FromStr for Assembunny {
     fn from_str(string: &str) -> Result<Self, Self::Err> {
         let parsed_instructions = string
             .lines()
-            .map(|line| line.parse().context(error::AssembunnyParseSnafu {}))
+            .map(|line| line.parse().context(AssembunnyParseSnafu {}))
             .collect::<Result<_, _>>();
 
         match parsed_instructions {
@@ -65,7 +74,19 @@ impl FromStr for Instruction {
         parser::parse_instruction(string)
             .finish()
             .map(|(_, output)| output)
-            .map_err(|error| error::InstructionParseError::with_parse_context(string, error))
+            .map_err(|error| InstructionParseError::with_parse_context(string, error))
+    }
+}
+
+impl From<char> for RegisterId {
+    fn from(value: char) -> Self {
+        match value {
+            'a' => Self::A,
+            'b' => Self::B,
+            'c' => Self::C,
+            'd' => Self::D,
+            _ => panic!("Cannot parse `{}` to `RegisterId`.", value),
+        }
     }
 }
 
@@ -81,12 +102,12 @@ mod assembunny_tests {
         let expected = Ok(Assembunny(vec![
             Instruction::Cpy {
                 from: Argument::Literal(7),
-                into: Argument::Reference('c'),
+                into: RegisterId::C,
             },
-            Instruction::Inc('d'),
-            Instruction::Dec('c'),
+            Instruction::Inc(RegisterId::D),
+            Instruction::Dec(RegisterId::C),
             Instruction::Jnz {
-                condition: Argument::Reference('c'),
+                condition: Argument::Reference(RegisterId::C),
                 jump_offset: -2,
             },
         ]));
