@@ -1,6 +1,6 @@
 use crate::instruction::{RegisterId, Word};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Registers([Word; 4]);
 
 impl Registers {
@@ -29,8 +29,14 @@ impl Registers {
     }
 }
 
+impl From<[Word; 4]> for Registers {
+    fn from(register_values: [Word; 4]) -> Self {
+        Self(register_values)
+    }
+}
+
 #[cfg(test)]
-mod registers_test {
+mod registers_tests {
     use super::*;
 
     #[test]
@@ -74,5 +80,10 @@ mod registers_test {
         registers.decrement(RegisterId::A);
 
         assert_eq!([-1, 0, 0, 0], registers.0);
+    }
+
+    #[test]
+    fn trait_from_test_from() {
+        assert_eq!(Registers([1, 2, 3, 4]), [1, 2, 3, 4].into());
     }
 }
