@@ -10,7 +10,9 @@ use nom::{
     IResult,
 };
 
-use super::*;
+use crate::assembunny::instruction::{
+    argument::Argument, register_id::RegisterId, Instruction, Word,
+};
 
 pub fn parse_instruction<'a, E>(input: &'a str) -> IResult<&'a str, Instruction, E>
 where
@@ -113,7 +115,7 @@ where
 }
 
 #[cfg(test)]
-mod tests {
+mod parser_tests {
     use nom::{
         error::{convert_error, VerboseError},
         Finish, Parser,
@@ -177,10 +179,7 @@ mod tests {
     #[case(RegisterId::B, "b")]
     #[case(RegisterId::C, "c")]
     #[case(RegisterId::D, "d")]
-    fn parse_register_id_test_valid_register_ids(
-        #[case] expected: RegisterId,
-        #[case] input: &str,
-    ) {
+    fn parse_register_id_test_valid_register_id(#[case] expected: RegisterId, #[case] input: &str) {
         let (remaining_input, actual) = unwrap_verbose(parse_register_id, input);
 
         assert_eq!(expected, actual);
@@ -191,7 +190,7 @@ mod tests {
     #[case("A")]
     #[case("e")]
     #[should_panic]
-    fn parse_register_id_test_invalid_register_ids(#[case] input: &str) {
+    fn parse_register_id_test_invalid_register_id(#[case] input: &str) {
         parse_register_id::<VerboseError<&str>>(input).unwrap();
     }
 }

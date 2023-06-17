@@ -1,5 +1,5 @@
 use crate::{
-    instruction::{Argument, Assembunny, Instruction, RegisterId, Word},
+    assembunny::{Argument, Assembunny, Instruction, RegisterId, Word},
     registers::Registers,
 };
 
@@ -110,7 +110,7 @@ impl RuntimeEnvironment {
 mod runtime_environment_tests {
     use rstest::{fixture, rstest};
 
-    use crate::instruction::*;
+    use crate::assembunny::*;
 
     use super::*;
 

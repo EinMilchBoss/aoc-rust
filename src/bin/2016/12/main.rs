@@ -1,8 +1,8 @@
-mod instruction;
+mod assembunny;
 mod registers;
 mod runtime;
 
-use instruction::{Assembunny, AssembunnyParseError, RegisterId, Word};
+use assembunny::{Assembunny, AssembunnyParseError, RegisterId, Word};
 use util::std::*;
 
 use crate::runtime::RuntimeEnvironment;
@@ -45,7 +45,7 @@ fn part_2(assembunny: &Assembunny) -> Word {
 mod tests {
     use rstest::{fixture, rstest};
 
-    use crate::instruction::*;
+    use crate::assembunny::{Argument, Instruction};
 
     use super::*;
 

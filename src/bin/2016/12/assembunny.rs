@@ -1,47 +1,15 @@
 mod error;
-mod parser;
+mod instruction;
 
-pub use error::{AssembunnyParseError, InstructionParseError};
+use snafu::prelude::*;
 
 use std::{ops::Deref, str::FromStr};
 
-use nom::Finish;
-use snafu::prelude::*;
-
 use self::error::AssembunnyParseSnafu;
-
-pub type Word = i32;
+pub use self::{error::AssembunnyParseError, instruction::*};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Assembunny(pub Vec<Instruction>);
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum Instruction {
-    Cpy {
-        from: Argument,
-        into: RegisterId,
-    },
-    Inc(RegisterId),
-    Dec(RegisterId),
-    Jnz {
-        condition: Argument,
-        jump_offset: Word,
-    },
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum Argument {
-    Literal(Word),
-    Reference(RegisterId),
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum RegisterId {
-    A,
-    B,
-    C,
-    D,
-}
 
 impl Deref for Assembunny {
     type Target = Vec<Instruction>;
@@ -67,34 +35,12 @@ impl FromStr for Assembunny {
     }
 }
 
-impl FromStr for Instruction {
-    type Err = error::InstructionParseError;
-
-    fn from_str(string: &str) -> Result<Self, Self::Err> {
-        parser::parse_instruction(string)
-            .finish()
-            .map(|(_, output)| output)
-            .map_err(|error| InstructionParseError::with_parse_context(string, error))
-    }
-}
-
-impl From<char> for RegisterId {
-    fn from(value: char) -> Self {
-        match value {
-            'a' => Self::A,
-            'b' => Self::B,
-            'c' => Self::C,
-            'd' => Self::D,
-            _ => panic!("Cannot parse `{}` to `RegisterId`.", value),
-        }
-    }
-}
-
 #[cfg(test)]
 mod assembunny_tests {
-    use super::*;
-
     use pretty_assertions::assert_eq;
+
+    use super::*;
+    use crate::assembunny::instruction::{Argument, InstructionParseError, RegisterId};
 
     #[test]
     fn from_str_trait_from_str_test_ok() {
