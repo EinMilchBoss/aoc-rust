@@ -113,7 +113,7 @@ where
 }
 
 #[cfg(test)]
-mod parser_tests {
+mod tests {
     use nom::{
         error::{convert_error, VerboseError},
         Finish, Parser,

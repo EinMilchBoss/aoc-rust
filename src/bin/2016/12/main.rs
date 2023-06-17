@@ -15,7 +15,7 @@ fn main() {
 fn parse_aoc_input_or_panic(input: &str) -> Assembunny {
     input.parse().unwrap_or_else(|error: AssembunnyParseError| {
         panic!(
-            "{}. Verbose error description: {}",
+            "{}\nVerbose error description: {}",
             error,
             error.verbose_error_description()
         );
