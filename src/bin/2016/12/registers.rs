@@ -8,12 +8,12 @@ impl Registers {
         Self([0, 0, 0, 0])
     }
 
-    pub fn get(&self, register_id: RegisterId) -> Word {
+    pub fn register_value(&self, register_id: RegisterId) -> Word {
         let Self(registers) = self;
         registers[register_id as usize]
     }
 
-    pub fn get_mut(&mut self, register_id: RegisterId) -> &mut Word {
+    pub fn register_value_mut(&mut self, register_id: RegisterId) -> &mut Word {
         let Self(registers) = self;
         &mut registers[register_id as usize]
     }
@@ -40,26 +40,26 @@ mod registers_tests {
     use super::*;
 
     #[test]
-    fn get_test() {
+    fn register_value_test() {
         let registers = Registers([5, 0, 0, 0]);
 
-        assert_eq!(5, registers.get(RegisterId::A));
+        assert_eq!(5, registers.register_value(RegisterId::A));
     }
 
     #[test]
-    fn get_mut_test_unsigned() {
+    fn register_value_mut_test_unsigned() {
         let mut registers = Registers::new();
 
-        *registers.get_mut(RegisterId::A) = 5;
+        *registers.register_value_mut(RegisterId::A) = 5;
 
         assert_eq!([5, 0, 0, 0], registers.0);
     }
 
     #[test]
-    fn get_mut_test_signed() {
+    fn register_value_mut_test_signed() {
         let mut registers = Registers::new();
 
-        *registers.get_mut(RegisterId::A) = -5;
+        *registers.register_value_mut(RegisterId::A) = -5;
 
         assert_eq!([-5, 0, 0, 0], registers.0);
     }
