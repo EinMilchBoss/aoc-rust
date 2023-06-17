@@ -1,4 +1,4 @@
-use crate::assembunny::{RegisterId, Word};
+use super::{RegisterId, Word};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Registers([Word; 4]);

@@ -10,9 +10,7 @@ use nom::{
     IResult,
 };
 
-use crate::assembunny::instruction::{
-    argument::Argument, register_id::RegisterId, Instruction, Word,
-};
+use crate::runtime::{Argument, Instruction, RegisterId, Word};
 
 pub fn parse_instruction<'a, E>(input: &'a str) -> IResult<&'a str, Instruction, E>
 where

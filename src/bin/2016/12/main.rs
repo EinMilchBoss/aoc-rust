@@ -1,11 +1,7 @@
-mod assembunny;
-mod registers;
 mod runtime;
 
-use assembunny::{Assembunny, AssembunnyParseError, RegisterId, Word};
+use runtime::{Assembunny, AssembunnyParseError, RegisterId, RuntimeEnvironment, Word};
 use util::std::*;
-
-use crate::runtime::RuntimeEnvironment;
 
 fn main() {
     let input = read_file(InputFile::Actual, Year("2016"), Day("12"))
@@ -45,7 +41,7 @@ fn part_2(assembunny: &Assembunny) -> Word {
 mod tests {
     use rstest::{fixture, rstest};
 
-    use crate::assembunny::{Argument, Instruction};
+    use crate::runtime::{Argument, Instruction};
 
     use super::*;
 

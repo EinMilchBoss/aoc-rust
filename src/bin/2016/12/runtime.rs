@@ -1,7 +1,7 @@
-use crate::{
-    assembunny::{Argument, Assembunny, Instruction, RegisterId, Word},
-    registers::Registers,
-};
+mod assembunny;
+mod registers;
+
+pub use self::{assembunny::*, registers::Registers};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RuntimeEnvironment {
@@ -109,8 +109,6 @@ impl RuntimeEnvironment {
 #[cfg(test)]
 mod runtime_environment_tests {
     use rstest::{fixture, rstest};
-
-    use crate::assembunny::*;
 
     use super::*;
 

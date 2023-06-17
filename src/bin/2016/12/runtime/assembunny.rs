@@ -40,7 +40,6 @@ mod assembunny_tests {
     use pretty_assertions::assert_eq;
 
     use super::*;
-    use crate::assembunny::instruction::{Argument, InstructionParseError, RegisterId};
 
     #[test]
     fn from_str_trait_from_str_test_ok() {
