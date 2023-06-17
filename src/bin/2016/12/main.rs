@@ -3,7 +3,6 @@ mod registers;
 mod runtime;
 
 use instruction::{Assembunny, AssembunnyParseError, RegisterId, Word};
-use registers::Registers;
 use util::std::*;
 
 use crate::runtime::RuntimeEnvironment;
