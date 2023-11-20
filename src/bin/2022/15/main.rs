@@ -14,7 +14,7 @@ struct Sensor {
     beacon: Coordinate,
 }
 
-const LINE: i32 = 10;
+const LINE: i32 = 2_000_000;
 
 fn part_one(input: &str) -> usize {
     // parse Sensors and Beacons
