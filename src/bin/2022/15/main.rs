@@ -39,12 +39,12 @@ fn part_one(input: &str) -> usize {
     impossibles.len()
 }
 
-fn impossibles_for_line(sensor: SensorBeaconPair) -> Option<impl Iterator<Item = i32>> {
+fn impossibles_for_line(pair: SensorBeaconPair) -> Option<impl Iterator<Item = i32>> {
     let SensorBeaconPair {
         sensor: Coordinate { x, y },
         ..
-    } = sensor;
-    let manhattan = sensor.manhattan_between();
+    } = pair;
+    let manhattan = pair.manhattan_between();
 
     let min = y - manhattan as i32;
     let max = y + manhattan as i32;
