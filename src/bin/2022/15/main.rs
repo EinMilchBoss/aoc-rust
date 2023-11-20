@@ -1,6 +1,6 @@
 use util::aoc;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct Coordinate {
     x: i32,
     y: i32,
@@ -18,21 +18,32 @@ fn part_one(input: &str) -> i32 {
     // get coordinate area until beacon
     // - increment if y = 2_000_000
     // - THIS CAN BE OPTIMIZED BY ONLY LOOKING AT Y 2_000_000
-    let mut sensors = vec![];
-    for line in input.lines() {
-        let parts = line.split(' ');
-        let mut parts = parts.skip(2);
-        let x = parts.next().unwrap();
-        let y = parts.next().unwrap();
-        let location = parse_location(x, y);
-        let mut parts = parts.skip(4);
-        let beacon = parse_beacon(parts.next().unwrap(), parts.next().unwrap());
-        sensors.push(Sensor { location, beacon });
-    }
+    let ss: Vec<_> = input
+        .lines()
+        .map(|line| {
+            let parts = line.split(' ');
 
-    dbg!(&sensors);
+            let mut skipped = parts.skip(2);
+            let location = parse_location(skipped.next().unwrap(), skipped.next().unwrap());
+
+            let mut skipped = skipped.skip(4);
+            let beacon = parse_beacon(skipped.next().unwrap(), skipped.next().unwrap());
+
+            Sensor { location, beacon }
+        })
+        .collect();
+
+    dbg!(&ss);
+
+    let ms: Vec<_> = ss.iter().map(|s| manhattan(s.location, s.beacon)).collect();
+
+    dbg!(&ms);
 
     0
+}
+
+fn manhattan(from: Coordinate, to: Coordinate) -> u32 {
+    to.x.abs_diff(from.x) + to.y.abs_diff(from.y)
 }
 
 fn parse_location(x: &str, y: &str) -> Coordinate {
