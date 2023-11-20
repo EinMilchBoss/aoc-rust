@@ -17,62 +17,39 @@ struct Sensor {
 const LINE: i32 = 2_000_000;
 
 fn part_one(input: &str) -> usize {
-    // parse Sensors and Beacons
-    // distance: Manhattan
-    // get coordinate area until beacon
-    // - increment if y = 2_000_000
-    // - THIS CAN BE OPTIMIZED BY ONLY LOOKING AT Y 2_000_000
-    let mut ss: Vec<_> = input
-        .lines()
-        .map(|line| {
-            let parts = line.split(' ');
+    let mut sensors = Vec::new();
+    let mut xs = HashSet::new();
+    let mut subs = HashSet::new();
+    for line in input.lines() {
+        let parts = line.split(' ');
 
-            let mut skipped = parts.skip(2);
-            let location = parse_location(skipped.next().unwrap(), skipped.next().unwrap());
+        let mut skipped = parts.skip(2);
+        let location = parse_location(skipped.next().unwrap(), skipped.next().unwrap());
 
-            let mut skipped = skipped.skip(4);
-            let beacon = parse_beacon(skipped.next().unwrap(), skipped.next().unwrap());
+        let mut skipped = skipped.skip(4);
+        let beacon = parse_beacon(skipped.next().unwrap(), skipped.next().unwrap());
 
-            Sensor { location, beacon }
-        })
-        .collect();
+        let sensor = Sensor { location, beacon };
+        sensors.push(sensor);
 
-    // dbg!(&ss);
-
-    // ss.push(Sensor {
-    //     location: Coordinate { x: 0, y: 2_000_000 },
-    //     beacon: Coordinate { x: 2, y: 2_000_000 },
-    // });
-
-    // let ms: Vec<_> = ss.iter().map(|s| manhattan(s.location, s.beacon)).collect();
-
-    // dbg!(&ms);
-
-    let mut x_vals: HashSet<i32> = HashSet::new();
-    for s in &ss {
-        if let Some(vals) = x_values(s.location, manhattan(s.location, s.beacon)) {
+        if let Some(vals) = x_values(location, manhattan(location, beacon)) {
             vals.into_iter().for_each(|x| {
-                x_vals.insert(x);
+                xs.insert(x);
             })
         }
     }
-    //dbg!(&x_vals);
 
-    let mut sub: HashSet<i32> = HashSet::new();
-    for s in &ss {
-        if s.beacon.y == LINE && x_vals.contains(&s.beacon.x) {
-            //dbg!(&s);
-            sub.insert(s.beacon.x);
+    for sensor in sensors {
+        if sensor.beacon.y == LINE && xs.contains(&sensor.beacon.x) {
+            subs.insert(sensor.beacon.x);
         }
 
-        if s.location.y == LINE && x_vals.contains(&s.location.x) {
-            //dbg!(&s);
-            sub.insert(s.location.x);
+        if sensor.location.y == LINE && xs.contains(&sensor.location.x) {
+            subs.insert(sensor.location.x);
         }
     }
-    //println!("SUB {sub:?}");
 
-    x_vals.len() - sub.len()
+    xs.len() - subs.len()
 }
 
 fn x_values(location: Coordinate, manhattan: u32) -> Option<RangeInclusive<i32>> {
@@ -92,9 +69,6 @@ fn manhattan(from: Coordinate, to: Coordinate) -> u32 {
 }
 
 fn parse_location(x: &str, y: &str) -> Coordinate {
-    // dbg!(x);
-    // dbg!(y);
-
     let x = x[2..x.len() - 1].parse().unwrap();
     let y = y[2..y.len() - 1].parse().unwrap();
 
@@ -102,9 +76,6 @@ fn parse_location(x: &str, y: &str) -> Coordinate {
 }
 
 fn parse_beacon(x: &str, y: &str) -> Coordinate {
-    // dbg!(x);
-    // dbg!(y);
-
     let x = x[2..x.len() - 1].parse().unwrap();
     let y = y[2..].parse().unwrap();
 
