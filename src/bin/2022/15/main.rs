@@ -8,6 +8,12 @@ struct Coordinate {
     y: i32,
 }
 
+impl Coordinate {
+    fn manhattan(self, other: Self) -> u32 {
+        self.x.abs_diff(other.x) + self.y.abs_diff(other.y)
+    }
+}
+
 #[derive(Debug)]
 struct Sensor {
     location: Coordinate,
@@ -32,7 +38,8 @@ fn part_one(input: &str) -> usize {
         let sensor = Sensor { location, beacon };
         sensors.push(sensor);
 
-        if let Some(vals) = x_values(location, manhattan(location, beacon)) {
+        let manhattan = location.manhattan(beacon);
+        if let Some(vals) = x_values(location, manhattan) {
             vals.into_iter().for_each(|x| {
                 xs.insert(x);
             })
@@ -62,10 +69,6 @@ fn x_values(location: Coordinate, manhattan: u32) -> Option<RangeInclusive<i32>>
     let dy = location.y.abs_diff(LINE);
     let side = (manhattan - dy) as i32;
     Some(location.x - side..=location.x + side)
-}
-
-fn manhattan(from: Coordinate, to: Coordinate) -> u32 {
-    to.x.abs_diff(from.x) + to.y.abs_diff(from.y)
 }
 
 fn parse_location(x: &str, y: &str) -> Coordinate {
