@@ -1,91 +1,69 @@
-use std::{collections::HashSet, ops::RangeInclusive};
+use std::collections::HashSet;
 
 use util::aoc;
 
-#[derive(Debug, Clone, Copy)]
-struct Coordinate {
-    x: i32,
-    y: i32,
-}
+mod coordinate;
+mod sensor_beacon_pair;
 
-impl Coordinate {
-    fn manhattan(self, other: Self) -> u32 {
-        self.x.abs_diff(other.x) + self.y.abs_diff(other.y)
-    }
-}
+use coordinate::*;
+use sensor_beacon_pair::*;
 
-#[derive(Debug)]
-struct Sensor {
-    location: Coordinate,
-    beacon: Coordinate,
-}
-
-const LINE: i32 = 2_000_000;
+/*
+As my AOC "framework" doesn't contain an option to pass arguments, such as `LINE`,
+this value has to be changed manually between testing and actually running for real.
+*/
+const LINE_IMPOSSIBLE_VALUES: i32 = 2_000_000;
 
 fn part_one(input: &str) -> usize {
-    let mut sensors = Vec::new();
-    let mut xs = HashSet::new();
-    let mut subs = HashSet::new();
+    let mut pairs = Vec::new();
+    let mut impossibles = HashSet::new();
+    let mut ignorables = HashSet::new();
+
     for line in input.lines() {
-        let parts = line.split(' ');
+        let pair = SensorBeaconPair::from_input_line(line);
+        pairs.push(pair);
 
-        let mut skipped = parts.skip(2);
-        let location = parse_location(skipped.next().unwrap(), skipped.next().unwrap());
-
-        let mut skipped = skipped.skip(4);
-        let beacon = parse_beacon(skipped.next().unwrap(), skipped.next().unwrap());
-
-        let sensor = Sensor { location, beacon };
-        sensors.push(sensor);
-
-        let manhattan = location.manhattan(beacon);
-        if let Some(vals) = x_values(location, manhattan) {
-            vals.into_iter().for_each(|x| {
-                xs.insert(x);
-            })
+        if let Some(values) = impossibles_for_line(pair) {
+            for value in values {
+                impossibles.insert(value);
+            }
         }
     }
 
-    for sensor in sensors {
-        if sensor.beacon.y == LINE && xs.contains(&sensor.beacon.x) {
-            subs.insert(sensor.beacon.x);
+    let can_be_ignored =
+        |Coordinate { x, y }| y == LINE_IMPOSSIBLE_VALUES && impossibles.contains(&x);
+    for pair in pairs {
+        if can_be_ignored(pair.sensor) {
+            ignorables.insert(pair.sensor.x);
         }
 
-        if sensor.location.y == LINE && xs.contains(&sensor.location.x) {
-            subs.insert(sensor.location.x);
+        if can_be_ignored(pair.beacon) {
+            ignorables.insert(pair.beacon.x);
         }
     }
 
-    xs.len() - subs.len()
+    impossibles.len() - ignorables.len()
 }
 
-fn x_values(location: Coordinate, manhattan: u32) -> Option<RangeInclusive<i32>> {
-    let min = location.y - manhattan as i32;
-    let max = location.y + manhattan as i32;
-    if !(min..=max).contains(&LINE) {
+fn impossibles_for_line(sensor: SensorBeaconPair) -> Option<impl Iterator<Item = i32>> {
+    let SensorBeaconPair {
+        sensor: Coordinate { x, y },
+        ..
+    } = sensor;
+    let manhattan = sensor.manhattan_between();
+
+    let min = y - manhattan as i32;
+    let max = y + manhattan as i32;
+    if !(min..=max).contains(&LINE_IMPOSSIBLE_VALUES) {
         return None;
     }
 
-    let dy = location.y.abs_diff(LINE);
+    let dy = y.abs_diff(LINE_IMPOSSIBLE_VALUES);
     let side = (manhattan - dy) as i32;
-    Some(location.x - side..=location.x + side)
+    Some(x - side..=x + side)
 }
 
-fn parse_location(x: &str, y: &str) -> Coordinate {
-    let x = x[2..x.len() - 1].parse().unwrap();
-    let y = y[2..y.len() - 1].parse().unwrap();
-
-    Coordinate { x, y }
-}
-
-fn parse_beacon(x: &str, y: &str) -> Coordinate {
-    let x = x[2..x.len() - 1].parse().unwrap();
-    let y = y[2..].parse().unwrap();
-
-    Coordinate { x, y }
-}
-
-fn part_two(input: &str) -> i32 {
+fn part_two(_: &str) -> i32 {
     0
 }
 
@@ -98,7 +76,7 @@ fn main() -> Result<(), String> {
     print!("{protocol}\n\n", protocol = two.test_protocol(0));
 
     println!("Part one:\n{result}", result = one.run());
-    //println!("Part two:\n{result}", result = two.run());
+    println!("Part two:\n{result}", result = two.run());
 
     Ok(())
 }
