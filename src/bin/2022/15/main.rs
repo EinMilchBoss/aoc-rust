@@ -15,13 +15,15 @@ this value has to be changed manually between testing and actually running for r
 const LINE_IMPOSSIBLE_VALUES: i32 = 2_000_000;
 
 fn part_one(input: &str) -> usize {
-    let mut pairs = Vec::new();
     let mut impossibles = HashSet::new();
     let mut ignorables = HashSet::new();
 
     for line in input.lines() {
         let pair = SensorBeaconPair::from_input_line(line);
-        pairs.push(pair);
+
+        if pair.beacon.y == LINE_IMPOSSIBLE_VALUES {
+            ignorables.insert(pair.beacon);
+        }
 
         if let Some(values) = impossibles_for_line(pair) {
             for value in values {
@@ -30,19 +32,11 @@ fn part_one(input: &str) -> usize {
         }
     }
 
-    let can_be_ignored =
-        |Coordinate { x, y }| y == LINE_IMPOSSIBLE_VALUES && impossibles.contains(&x);
-    for pair in pairs {
-        if can_be_ignored(pair.sensor) {
-            ignorables.insert(pair.sensor.x);
-        }
-
-        if can_be_ignored(pair.beacon) {
-            ignorables.insert(pair.beacon.x);
-        }
+    for x in ignorables.iter().map(|Coordinate { x, .. }| x) {
+        impossibles.remove(x);
     }
 
-    impossibles.len() - ignorables.len()
+    impossibles.len()
 }
 
 fn impossibles_for_line(sensor: SensorBeaconPair) -> Option<impl Iterator<Item = i32>> {
