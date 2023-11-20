@@ -32,7 +32,7 @@ fn part_one(input: &str) -> usize {
         }
     }
 
-    for x in ignorables.iter().map(|Coordinate { x, .. }| x) {
+    for Coordinate { x, .. } in &ignorables {
         impossibles.remove(x);
     }
 
